@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src *;">
+<title>Executive Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#070c18;--bg2:#0b1220;--card:#101826;--card2:#0d1a2a;
+  --glass:rgba(13,22,38,.88);--border:rgba(255,255,255,.065);--borderB:rgba(255,255,255,.12);
+  --t1:#edf2ff;--t2:#7a8fad;--t3:#3d5070;
+  --teal:#00e5c3;--tealD:rgba(0,229,195,.14);
+  --blue:#4d9fff;--blueD:rgba(77,159,255,.14);
+  --amber:#ffb800;--amberD:rgba(255,184,0,.14);
+  --coral:#ff4d6d;--coralD:rgba(255,77,109,.14);
+  --green:#00c47a;--greenD:rgba(0,196,122,.14);
+  --rev:#4d9fff;--spd:#ff4d6d;--pro:#00e5c3;--roi:#ffb800;
+  --r:14px;--rs:8px;
+  --sh:0 8px 40px rgba(0,0,0,.6);--shs:0 3px 16px rgba(0,0,0,.4);
+}
+.lt{
+  --bg:#f0f4fc;--bg2:#e4ecf8;--card:#fff;--card2:#f4f8ff;
+  --glass:rgba(255,255,255,.92);--border:rgba(0,0,0,.07);--borderB:rgba(0,0,0,.13);
+  --t1:#0c1829;--t2:#4d6080;--t3:#98afc8;
+  --sh:0 8px 40px rgba(0,0,0,.1);--shs:0 3px 16px rgba(0,0,0,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden;-webkit-text-size-adjust:100%}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;animation:drift 20s ease-in-out infinite alternate}
+.o1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,229,195,.2),transparent 70%);top:-150px;left:-100px;opacity:.38}
+.o2{width:500px;height:500px;background:radial-gradient(circle,rgba(77,159,255,.18),transparent 70%);bottom:-100px;right:-80px;opacity:.32;animation-delay:-9s}
+.o3{width:350px;height:350px;background:radial-gradient(circle,rgba(255,184,0,.13),transparent 70%);top:45%;left:55%;opacity:.28;animation-delay:-5s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(28px,18px) scale(1.05)}}
+.lt .orb{opacity:.08!important}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.loginCard{position:relative;z-index:1;background:var(--glass);border:1px solid var(--borderB);backdrop-filter:blur(28px);border-radius:24px;padding:50px 44px;width:430px;box-shadow:var(--sh);animation:fadeUp .6s cubic-bezier(.4,0,.2,1) both}
+.loginLogo{width:54px;height:54px;border-radius:16px;margin:0 auto 18px;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 32px rgba(0,229,195,.28)}
+.loginH{font-family:'Syne',sans-serif;font-size:25px;font-weight:800;text-align:center;margin-bottom:4px;letter-spacing:-.02em}
+.loginSub{font-size:13px;color:var(--t2);text-align:center;margin-bottom:30px}
+.lf{margin-bottom:15px}
+.lf label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);display:block;margin-bottom:6px}
+.lf input{width:100%;padding:12px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--t1);font-family:'Poppins',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+.lf input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,229,195,.12)}
+.lf input::placeholder{color:var(--t3)}
+.loginBtn{width:100%;padding:13px;margin-top:8px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#020d1a;border:none;border-radius:var(--rs);font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.02em;box-shadow:0 4px 22px rgba(0,229,195,.26);transition:opacity .2s}
+.loginBtn:hover{opacity:.88}
+.loginErr{color:var(--coral);font-size:13px;text-align:center;margin-top:10px;display:none;font-weight:500}
+.demoBox{margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
+.demoBox p{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.demoRow{display:flex;align-items:center;gap:8px;padding:7px 11px;background:var(--card2);border-radius:var(--rs);margin-bottom:5px;border:1px solid var(--border)}
+.dTag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.05em;text-transform:uppercase}
+.dAdmin{background:var(--tealD);color:var(--teal)}
+.dViewer{background:var(--blueD);color:var(--blue)}
+.dCred{font-family:'DM Mono',monospace;font-size:12px;color:var(--t2)}
+
+/* ── APP SHELL ── */
+#app{display:none;position:relative;z-index:1;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:500;background:var(--glass);backdrop-filter:blur(22px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.brandIcon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-size:15px}
+.brandName{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--t1)}
+.tsep{width:1px;height:28px;background:var(--border);flex-shrink:0}
+.tabNav{display:flex;gap:2px;background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);padding:3px;flex-shrink:0}
+.tabBtn{padding:5px 16px;border-radius:6px;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--t2);transition:all .2s;white-space:nowrap}
+.tabBtn.active{background:linear-gradient(135deg,var(--teal),var(--blue));color:#020d1a;box-shadow:0 2px 10px rgba(0,229,195,.22)}
+.tabBtn:hover:not(.active){color:var(--t1);background:rgba(255,255,255,.05)}
+.topRight{display:flex;gap:6px;align-items:center;margin-left:auto;flex-shrink:0;flex-wrap:wrap}
+.tbtn{background:var(--card);border:1.5px solid var(--border);color:var(--t1);padding:0 12px;height:32px;border-radius:var(--rs);font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:5px}
+.tbtn:hover{background:var(--card2);border-color:var(--borderB)}
+.tbtn.primary{background:var(--teal);color:#020d1a;border-color:var(--teal);font-weight:700}
+.tbtn.primary:hover{opacity:.85}
+.rolePill{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.rAdmin{background:var(--tealD);color:var(--teal);border:1px solid rgba(0,229,195,.25)}
+.rViewer{background:var(--blueD);color:var(--blue);border:1px solid rgba(77,159,255,.25)}
+.uname{font-size:12px;font-weight:600;color:var(--t2)}
+.alertBadge{display:none;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;background:var(--coralD);border:1px solid rgba(255,77,109,.28);color:var(--coral);font-size:11px;font-weight:700;cursor:pointer;animation:pulse 2s infinite}
+.alertBadge.show{display:flex}
+.refreshInfo{font-size:11px;color:var(--t3);white-space:nowrap}
+
+/* ── DATE PRESETS ── */
+.dateBar{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.presetBtn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--t2);transition:all .2s;white-space:nowrap}
+.presetBtn:hover{border-color:var(--teal);color:var(--teal)}
+.presetBtn.active{background:var(--tealD);border-color:var(--teal);color:var(--teal)}
+.dateInputWrap{display:flex;align-items:center;gap:6px;margin-left:auto}
+.dateInputWrap label{font-size:11px;color:var(--t3);font-weight:500}
+.fsel{background:var(--card);border:1.5px solid var(--border);color:var(--t1);padding:5px 9px;border-radius:var(--rs);font-family:'Poppins',sans-serif;font-size:12px;outline:none;cursor:pointer;height:30px;transition:border-color .2s}
+.fsel:focus{border-color:var(--teal)}
+.fsel[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5)}
+.filterSelects{display:flex;gap:6px}
+
+/* ── MAIN ── */
+.main{padding:20px 24px;max-width:1800px;margin:0 auto;width:100%}
+.tabPanel{display:none;animation:fadeIn .3s ease}
+.tabPanel.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shs)}
+.cardHead{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--t2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.secTitle{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--t1);margin:22px 0 14px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.secTitle::after{content:'';flex:1;height:1px;background:var(--border)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 2.2fr;gap:14px;margin-bottom:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+/* ── RESPONSIVE ── */
+@media(max-width:1400px){
+  .g3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:1100px){
+  .g3{grid-template-columns:1fr 1fr}
+  .targetsGrid{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g2{grid-template-columns:1fr}
+  .g3{grid-template-columns:1fr}
+  .topbar{flex-wrap:wrap;height:auto;padding:8px 16px;gap:8px}
+  .topRight{flex-wrap:wrap;gap:4px}
+  .tbtn{height:28px;padding:0 8px;font-size:11px}
+  .dateBar{padding:6px 12px;gap:6px}
+  .main{padding:12px 14px}
+}
+@media(max-width:640px){
+  .g4{grid-template-columns:1fr 1fr}
+  .topbar{padding:6px 12px}
+  .brandName{font-size:14px}
+  .tabBtn{padding:4px 10px;font-size:11px}
+  .kpiVal{font-size:clamp(13px,4vw,18px)!important}
+  .dateBar{gap:4px}
+  .presetBtn{padding:3px 8px;font-size:10px}
+}
+@media(max-width:480px){
+  .g4{grid-template-columns:1fr}
+  .topRight .uname,.topRight .rolePill,.topRight .refreshInfo{display:none}
+}
+
+/* ── KPI CARDS ── */
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px 12px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;animation:fadeUp .5s ease both;display:flex;align-items:stretch;gap:0}
+.kpi:nth-child(1){animation-delay:.05s}.kpi:nth-child(2){animation-delay:.1s}.kpi:nth-child(3){animation-delay:.15s}.kpi:nth-child(4){animation-delay:.2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--teal));z-index:3}
+.kpiText{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;z-index:2}
+.kpiLbl{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
+.kpiVal{font-family:'DM Mono',monospace;font-size:clamp(16px,1.6vw,22px);font-weight:500;color:var(--kc,var(--teal));line-height:1;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpiBottom{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.kpiChg{font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px}
+.kpiPrev{font-size:10px;color:var(--t3);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up{background:rgba(0,196,122,.1);color:var(--green)}.dn{background:rgba(255,77,109,.1);color:var(--coral)}.neu{background:var(--border);color:var(--t2)}
+.kpiSparkBox{width:42%;flex-shrink:0;position:relative;overflow:hidden;border-radius:0 var(--rs) var(--rs) 0}
+.kpiSpark{position:absolute;inset:0;width:100%!important;height:100%!important;pointer-events:auto}
+.kRev{--kc:var(--rev)}.kSpd{--kc:var(--spd)}.kPro{--kc:var(--pro)}.kRoi{--kc:var(--roi)}
+
+/* ── ALERT PANEL ── */
+.alertPanel{background:var(--coralD);border:1px solid rgba(255,77,109,.22);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;display:none}
+.alertPanel.show{display:block}
+.alertPanelTitle{font-size:11px;font-weight:700;color:var(--coral);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase}
+.alertItem{font-size:12px;color:var(--t1);padding:5px 0;border-bottom:1px solid rgba(255,77,109,.12);display:flex;gap:8px;align-items:center}
+.alertItem:last-child{border-bottom:none}
+
+/* ── PROJECTED ── */
+.projCard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shs)}
+.projHeader{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.projBig{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--teal)}
+.projTarget{font-size:11px;color:var(--t3);font-weight:500;margin-top:2px}
+.projBadge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.projExceeded{background:rgba(0,196,122,.15);color:var(--green);border:1px solid rgba(0,196,122,.3)}
+.projBehind{background:var(--amberD);color:var(--amber);border:1px solid rgba(255,184,0,.3)}
+.projOntrack{background:var(--tealD);color:var(--teal);border:1px solid rgba(0,229,195,.3)}
+.barWrap{margin:12px 0;position:relative}
+.barTrack{height:10px;background:var(--border);border-radius:99px;overflow:visible;position:relative}
+.barFill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width 1.4s cubic-bezier(.4,0,.2,1);position:relative}
+.barMarker{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--amber);border-radius:99px}
+.barMarkerLabel{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:var(--amber);white-space:nowrap}
+.barPct{font-size:12px;font-weight:700;color:var(--t2);margin-top:5px;text-align:right}
+.metGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.metItem{background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px}
+.metLbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.metVal{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--t1)}
+.metVal.good{color:var(--teal)}.metVal.bad{color:var(--coral)}.metVal.warn{color:var(--amber)}
+
+/* ── GAUGES ── */
+.gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:2px;overflow:hidden}
+.gaugeWrap{text-align:center;width:100%}
+.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:4px}
+.gaugeRel{display:block;width:100%;text-align:center;line-height:0}
+.gaugeInfo{text-align:center;margin-top:-10px;padding-bottom:2px}
+.gPct{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--teal);white-space:nowrap}
+.gSub{font-size:9px;color:var(--t3);margin-top:1px}
+.gAmt{font-size:10px;color:var(--t2);font-weight:600;margin-top:2px}
+.gaugeDivider{height:1px;background:var(--border);margin:4px 10px}
+/* Gauge detail strip below arc */
+.gDetail{display:flex;justify-content:space-between;align-items:center;margin-top:3px;padding:6px 8px;background:var(--card2);border-radius:var(--rs);border:1px solid var(--border);width:100%}
+.gDetailItem{text-align:center}
+.gDetailLbl{font-size:8px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);margin-bottom:2px}
+.gDetailVal{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--t1)}
+.gDetailVal.pos{color:var(--green)}.gDetailVal.neg{color:var(--coral)}.gDetailVal.hi{color:var(--teal)}
+/* Month filter pill */
+.monthFilter{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.monthPill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--t2);transition:all .2s;white-space:nowrap}
+.monthPill:hover{border-color:var(--teal);color:var(--teal)}
+.monthPill.active{background:var(--tealD);border-color:var(--teal);color:var(--teal)}
+/* Quarter filter */
+.qFilter{display:flex;gap:4px;margin-bottom:6px}
+.qPill{padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--t2);transition:all .2s}
+.qPill:hover{border-color:var(--amber);color:var(--amber)}
+.qPill.active{background:var(--amberD);border-color:var(--amber);color:var(--amber)}
+/* Smart projection badge */
+.smartBadge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--amber);background:var(--amberD);border:1px solid rgba(255,184,0,.25);border-radius:20px;padding:2px 8px}
+
+/* ── MONTHLY TABLE ── */
+.mTable{width:100%;border-collapse:collapse;font-size:11px}
+.mTable th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:7px 9px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.mTable td{padding:7px 9px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11px;color:var(--t2);white-space:nowrap}
+.mTable tr:last-child td{border-bottom:none}
+.mTable tbody tr:hover td{background:var(--card2);color:var(--t1)}
+.mTable td.nameCol{font-family:'Poppins',sans-serif;font-weight:600;color:var(--t1)}
+.pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;display:inline-block}
+.pillG{background:rgba(0,196,122,.12);color:var(--green)}
+.pillR{background:rgba(255,77,109,.12);color:var(--coral)}
+.pillA{background:var(--amberD);color:var(--amber)}
+.pillN{color:var(--t3)}
+.deltaPos{color:var(--green);font-weight:700}
+.deltaNeg{color:var(--coral);font-weight:700}
+
+/* ── TARGETS TAB ── */
+.targetsGrid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-bottom:18px}
+@media(max-width:1100px){.targetsGrid{grid-template-columns:1fr}}
+.tCard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shs)}
+.tCardH{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:4px}
+.tCardSub{font-size:12px;color:var(--t2);margin-bottom:20px}
+.tSectionLbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.tGlobalGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.tGItem label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t2);display:block;margin-bottom:5px}
+.tInput{width:100%;padding:9px 11px;background:var(--card2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--t1);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color .2s;text-align:right}
+.tInput:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,229,195,.1)}
+.tInput::placeholder{color:var(--t3)}
+.tCalcNote{font-size:11px;color:var(--teal);margin-top:4px;font-weight:500}
+.tMonthHeader{display:grid;grid-template-columns:72px 1fr 1fr;gap:8px;margin-bottom:6px}
+.tMonthHeader span{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);text-align:right}
+.tMonthHeader span:first-child{text-align:left}
+.tMonthRow{display:grid;grid-template-columns:72px 1fr 1fr;gap:8px;align-items:center;margin-bottom:6px}
+.tMonthLbl{font-size:12px;font-weight:600;color:var(--t2)}
+.tSaveBtn{width:100%;padding:12px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#020d1a;border:none;border-radius:var(--rs);font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(0,229,195,.2);transition:opacity .2s;margin-top:8px}
+.tSaveBtn:hover{opacity:.88}
+.tBulkBtn{padding:5px 12px;border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--borderB);background:transparent;color:var(--t2);transition:all .2s;font-family:'Poppins',sans-serif}
+.tBulkBtn:hover{border-color:var(--teal);color:var(--teal)}
+
+/* per-game ROI */
+.gameRoiGrid{display:grid;gap:6px;margin-top:8px}
+.gameRoiRow{display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:center}
+.gameRoiName{font-size:12px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* BULK MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.overlay.open{display:flex}
+.bModal{background:var(--card);border:1px solid var(--borderB);border-radius:20px;width:640px;max-height:88vh;overflow-y:auto;box-shadow:var(--sh);padding:28px;animation:fadeUp .3s ease}
+.bModalH{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.bModalTitle{font-family:'Syne',sans-serif;font-size:19px;font-weight:800}
+.bClose{cursor:pointer;font-size:22px;color:var(--t3);transition:color .2s;line-height:1}
+.bClose:hover{color:var(--t1)}
+.bModalSub{font-size:12px;color:var(--t2);margin-bottom:20px}
+
+/* USER MODAL */
+.uModal{background:var(--card);border:1px solid var(--borderB);border-radius:20px;width:560px;max-height:85vh;overflow:auto;box-shadow:var(--sh);padding:28px;animation:fadeUp .3s ease}
+.uModalH{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.uModalTitle{font-family:'Syne',sans-serif;font-size:19px;font-weight:800}
+.uClose{cursor:pointer;font-size:22px;color:var(--t3);transition:color .2s;line-height:1}
+.uClose:hover{color:var(--t1)}
+.uTable{width:100%;border-collapse:collapse;margin-bottom:16px}
+.uTable th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);padding:7px 9px;border-bottom:1px solid var(--border);text-align:left}
+.uTable td{padding:9px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.uTable tr:last-child td{border-bottom:none}
+.uRoleSel{background:var(--bg);border:1px solid var(--border);color:var(--t1);padding:4px 7px;border-radius:6px;font-size:12px;font-family:'Poppins',sans-serif}
+.uDel{color:var(--coral);cursor:pointer;font-weight:700;border:none;background:none;font-size:14px}
+.addRow{display:flex;gap:7px;flex-wrap:wrap}
+.addRow input,.addRow select{flex:1;min-width:100px;padding:8px 10px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--t1);font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.addRow input:focus,.addRow select:focus{border-color:var(--teal)}
+
+/* LOADER / TOAST */
+.loader{position:fixed;inset:0;z-index:700;background:rgba(7,12,24,.88);backdrop-filter:blur(6px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.loader.on{display:flex}
+.spinner{width:42px;height:42px;border-radius:50%;border:3px solid var(--borderB);border-top-color:var(--teal);animation:spin .75s linear infinite}
+.loaderTxt{font-size:14px;color:var(--t2);font-weight:500}
+.toast{position:fixed;bottom:24px;right:24px;z-index:900;background:var(--card);border:1px solid var(--borderB);border-radius:var(--rs);padding:12px 18px;font-size:13px;font-weight:600;box-shadow:var(--sh);transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);pointer-events:none;max-width:300px}
+.toast.on{transform:translateY(0);opacity:1}
+.tOk{border-left:3px solid var(--teal)}.tErr{border-left:3px solid var(--coral)}.tWarn{border-left:3px solid var(--amber)}
+
+/* TARGET PREVIEW */
+.tPrevRow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.tPrevRow:last-child{border-bottom:none}
+.tPrevM{color:var(--t2);font-weight:600}
+.tPrevVals{display:flex;gap:14px}
+.tPrevP{font-family:'DM Mono',monospace;color:var(--teal);font-size:11px}
+.tPrevR{font-family:'DM Mono',monospace;color:var(--amber);font-size:11px}
+
+/* VIEWER MSG */
+.viewerMsg{background:var(--blueD);border:1px solid rgba(77,159,255,.22);border-radius:var(--r);padding:16px 20px;font-size:13px;color:var(--blue);font-weight:500;text-align:center;display:none}
+.viewerMsg.show{display:block}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--borderB);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+
+<!-- LOADER -->
+<div class="loader" id="loader"><div class="spinner"></div><div class="loaderTxt" id="loaderTxt">Loading…</div></div>
+<div class="toast" id="toast"></div>
+
+<!-- BULK MODAL -->
+<div class="overlay" id="bulkOverlay">
+  <div class="bModal">
+    <div class="bModalH"><div class="bModalTitle">Set Full Year Targets</div><div class="bClose" onclick="closeBulkModal()">✕</div></div>
+    <div class="bModalSub">Set Profit & ROI targets for all 12 months of <span id="bulkYearLbl"></span> at once.</div>
+    <div class="tMonthHeader"><span>Month</span><span>Profit Target ($)</span><span>ROI Target</span></div>
+    <div id="bulkGrid"></div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="tbtn" style="flex:1" onclick="closeBulkModal()">Cancel</button>
+      <button class="tbtn primary" style="flex:2" onclick="saveBulkTargets()">Apply Full Year Targets</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER MODAL -->
+<div class="overlay" id="userOverlay">
+  <div class="uModal">
+    <div class="uModalH"><div class="uModalTitle">👥 User Management</div><div class="uClose" onclick="closeUserModal()">✕</div></div>
+    <div style="font-size:11px;color:var(--t2);margin-bottom:14px">Login uses Gmail address + password. Only listed users can access.</div>
+    <table class="uTable"><thead><tr><th>Gmail</th><th>Display Name</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="uTableBody"></tbody></table>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Add New User</div>
+      <div class="addRow">
+        <input id="newU" type="email" placeholder="gmail@gmail.com" style="flex:2"/>
+        <input id="newName" placeholder="Display Name"/>
+        <input id="newP" type="password" placeholder="Password"/>
+        <select id="newR"><option value="viewer">Viewer</option><option value="admin">Admin</option></select>
+        <button class="tbtn primary" onclick="addUser()">+ Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="loginCard">
+    <div class="loginLogo">📊</div>
+    <div class="loginH">Executive Dashboard</div>
+    <div class="loginSub">Analytics & Performance Intelligence</div>
+    <div class="lf"><label>Gmail Address</label><input id="lUser" type="email" placeholder="yourname@gmail.com" autocomplete="email"/></div>
+    <div class="lf"><label>Password</label><input id="lPass" type="password" placeholder="Enter password" autocomplete="current-password"/></div>
+    <button class="loginBtn" onclick="doLogin()">Sign In →</button>
+    <div class="loginErr" id="loginErr">⚠ Access denied.</div>
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);text-align:center">
+      <div style="font-size:11px;color:var(--t3)">🔒 Restricted access — authorized users only</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px" id="lockoutMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand"><div class="brandIcon">📊</div><div class="brandName">ExecDash</div></div>
+    <div class="tsep"></div>
+    <div class="tabNav">
+      <button class="tabBtn active" onclick="switchTab('dashboard',this)">Dashboard</button>
+      <button class="tabBtn" onclick="switchTab('targets',this)">Targets</button>
+    </div>
+    <div class="topRight">
+      <div class="alertBadge" id="alertBadge" onclick="scrollToAlerts()">⚠ <span id="alertCount">0</span> Alerts</div>
+      <span class="refreshInfo" id="refreshInfo">—</span>
+      <button class="tbtn" onclick="refreshData()">↻ Refresh</button>
+      <button class="tbtn" onclick="exportCSV()" id="csvBtn">↓ CSV</button>
+      <button class="tbtn" onclick="exportPDF()" id="pdfBtn">↓ PDF</button>
+      <button class="tbtn" onclick="toggleTheme()" id="themeBtn">☀ Light</button>
+      <button class="tbtn" onclick="openUserModal()" id="userMgmtBtn" style="display:none">👥 Users</button>
+      <span class="rolePill" id="rolePill"></span>
+      <span class="uname" id="unameEl"></span>
+      <button class="tbtn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- DATE BAR (dashboard only) -->
+  <div class="dateBar" id="dateBar">
+    <button class="presetBtn" data-preset="7d" onclick="applyPreset(this)">Last 7D</button>
+    <button class="presetBtn active" data-preset="28d" onclick="applyPreset(this)">Last 28D</button>
+    <button class="presetBtn" data-preset="thisMonth" onclick="applyPreset(this)">This Month</button>
+    <button class="presetBtn" data-preset="lastMonth" onclick="applyPreset(this)">Last Month</button>
+    <button class="presetBtn" data-preset="thisQuarter" onclick="applyPreset(this)">This Quarter</button>
+    <button class="presetBtn" data-preset="thisYear" onclick="applyPreset(this)">This Year</button>
+    <div class="tsep" style="height:20px;margin:0 2px"></div>
+    <select class="fsel" id="fGame" onchange="applyFilters()"><option value="">🎮 All Games</option></select>
+    <select class="fsel" id="fPlat" onchange="applyFilters()"><option value="">📱 All Platforms</option></select>
+    <div class="tsep" style="height:20px;margin:0 2px"></div>
+    <label style="font-size:11px;color:var(--t3);font-weight:500;white-space:nowrap">From</label>
+    <input type="date" class="fsel" id="fFrom" onchange="onCustomDate()"/>
+    <label style="font-size:11px;color:var(--t3);font-weight:500;white-space:nowrap">To</label>
+    <input type="date" class="fsel" id="fTo" onchange="onCustomDate()"/>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div class="tabPanel active" id="tab-dashboard">
+    <div class="main">
+
+      <!-- ALERTS -->
+      <div class="alertPanel" id="alertPanel">
+        <div class="alertPanelTitle">⚠ ROI Alerts — Current Month Performance Below Threshold</div>
+        <div id="alertList"></div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="g4">
+        <div class="kpi kRev">
+          <div class="kpiText">
+            <div class="kpiLbl">Revenue</div>
+            <div class="kpiVal" id="kRevVal">$0</div>
+            <div class="kpiBottom"><div class="kpiChg neu" id="kRevChg">—</div><div class="kpiPrev" id="kRevPrev"></div></div>
+          </div>
+          <div class="kpiSparkBox">
+            <canvas class="kpiSpark" id="spRev"></canvas>
+          </div>
+        </div>
+        <div class="kpi kSpd">
+          <div class="kpiText">
+            <div class="kpiLbl">Spend</div>
+            <div class="kpiVal" id="kSpdVal">$0</div>
+            <div class="kpiBottom"><div class="kpiChg neu" id="kSpdChg">—</div><div class="kpiPrev" id="kSpdPrev"></div></div>
+          </div>
+          <div class="kpiSparkBox">
+            <canvas class="kpiSpark" id="spSpd"></canvas>
+          </div>
+        </div>
+        <div class="kpi kPro">
+          <div class="kpiText">
+            <div class="kpiLbl">Profit</div>
+            <div class="kpiVal" id="kProVal">$0</div>
+            <div class="kpiBottom"><div class="kpiChg neu" id="kProChg">—</div><div class="kpiPrev" id="kProPrev"></div></div>
+          </div>
+          <div class="kpiSparkBox">
+            <canvas class="kpiSpark" id="spPro"></canvas>
+          </div>
+        </div>
+        <div class="kpi kRoi">
+          <div class="kpiText">
+            <div class="kpiLbl">Blended ROI</div>
+            <div class="kpiVal" id="kRoiVal">0.00</div>
+            <div class="kpiBottom"><div class="kpiChg neu" id="kRoiChg">—</div><div class="kpiPrev" id="kRoiPrev"></div></div>
+          </div>
+          <div class="kpiSparkBox">
+            <canvas class="kpiSpark" id="spRoi"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAILY OVERVIEW -->
+      <div class="card" style="margin-bottom:18px">
+        <div class="cardHead"><span>📈 Daily Overview</span></div>
+        <div style="position:relative;height:320px"><canvas id="dailyChart"></canvas></div>
+      </div>
+
+      <!-- PROJECTED + GAUGES + MONTHLY -->
+      <div class="g3" style="margin-bottom:18px">
+
+        <!-- PROJECTED -->
+        <div class="projCard">
+          <div class="cardHead">
+            <span>🎯 Month Projection</span>
+            <span class="smartBadge">⚡ Smart EXP</span>
+          </div>
+          <!-- Month Filter -->
+          <div class="monthFilter" id="monthFilterWrap"></div>
+          <!-- Projected value -->
+          <div class="projHeader">
+            <div>
+              <div class="projBig" id="projVal">$0</div>
+              <div class="projTarget" id="projTargetLbl">— of target</div>
+            </div>
+            <div class="projBadge projOntrack" id="projBadge">On Track</div>
+          </div>
+          <div class="barWrap">
+            <div class="barTrack">
+              <div class="barFill" id="projBar" style="width:0%"></div>
+              <div class="barMarker" id="projMarker" style="left:100%">
+                <div class="barMarkerLabel" id="projMarkerLbl">Target</div>
+              </div>
+            </div>
+            <div class="barPct" id="projPct">0%</div>
+          </div>
+          <div class="metGrid">
+            <div class="metItem">
+              <div class="metLbl" id="profitMetLbl">Current Profit</div>
+              <div class="metVal good" id="mCurProfit">$0</div>
+            </div>
+            <div class="metItem">
+              <div class="metLbl" id="remMetLbl">Remaining</div>
+              <div class="metVal" id="mRemaining">$0</div>
+            </div>
+            <div class="metItem">
+              <div class="metLbl">Smart Daily Avg</div>
+              <div class="metVal" id="mDailyAvg">$0</div>
+            </div>
+            <div class="metItem">
+              <div class="metLbl">Required Daily</div>
+              <div class="metVal warn" id="mReqDaily">$0</div>
+            </div>
+          </div>
+          <!-- Projection method note -->
+          <div style="margin-top:10px;font-size:10px;color:var(--t3);font-style:italic" id="projMethodNote"></div>
+        </div>
+
+        <!-- GAUGES -->
+        <div class="gaugeSection">
+          <!-- Quarter selector -->
+          <div class="qFilter" id="qFilterWrap">
+            <button class="qPill active" data-q="1" onclick="selectQuarter(1,this)">Q1</button>
+            <button class="qPill" data-q="2" onclick="selectQuarter(2,this)">Q2</button>
+            <button class="qPill" data-q="3" onclick="selectQuarter(3,this)">Q3</button>
+            <button class="qPill" data-q="4" onclick="selectQuarter(4,this)">Q4</button>
+            <button class="qPill" data-q="0" onclick="selectQuarter(0,this)" style="margin-left:4px">Year</button>
+          </div>
+          <div class="gaugeWrap">
+            <div class="gaugeTitle" id="qGaugeTitle">Quarter GP Target</div>
+            <div class="gaugeRel">
+              <canvas id="gaugeQ" width="210" height="108"></canvas>
+            </div>
+            <div class="gaugeInfo">
+              <div class="gPct" id="gQpct">0%</div>
+              <div class="gSub">Achieved</div>
+              <div class="gAmt" id="gQamt">$0</div>
+            </div>
+          </div>
+          <!-- Quarter detail strip -->
+          <div class="gDetail">
+            <div class="gDetailItem">
+              <div class="gDetailLbl">Target</div>
+              <div class="gDetailVal" id="gQTarget">—</div>
+            </div>
+            <div class="gDetailItem">
+              <div class="gDetailLbl">Achieved</div>
+              <div class="gDetailVal hi" id="gQAchieved">—</div>
+            </div>
+            <div class="gDetailItem">
+              <div class="gDetailLbl">Variance</div>
+              <div class="gDetailVal" id="gQVariance">—</div>
+            </div>
+          </div>
+          <div class="gaugeDivider"></div>
+          <div class="gaugeWrap">
+            <div class="gaugeTitle">Annual GP Target</div>
+            <div class="gaugeRel">
+              <canvas id="gaugeA" width="210" height="108"></canvas>
+            </div>
+            <div class="gaugeInfo">
+              <div class="gPct" id="gApct">0%</div>
+              <div class="gSub">Achieved</div>
+              <div class="gAmt" id="gAamt">$0</div>
+            </div>
+          </div>
+          <!-- Annual detail strip -->
+          <div class="gDetail">
+            <div class="gDetailItem">
+              <div class="gDetailLbl">Target</div>
+              <div class="gDetailVal" id="gATarget">—</div>
+            </div>
+            <div class="gDetailItem">
+              <div class="gDetailLbl">Achieved</div>
+              <div class="gDetailVal hi" id="gAAchieved">—</div>
+            </div>
+            <div class="gDetailItem">
+              <div class="gDetailLbl">Variance</div>
+              <div class="gDetailVal" id="gAVariance">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MONTHLY TABLE -->
+        <div class="card" style="overflow:auto;padding:16px">
+          <div class="cardHead"><span>📅 Monthly Achievement</span></div>
+          <table class="mTable">
+            <thead><tr>
+              <th>Month</th><th>Target</th><th>Profit</th>
+              <th>vs Target (Δ)</th><th>ROI</th><th>ROI Tgt</th><th>Status</th>
+            </tr></thead>
+            <tbody id="monthlyBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TARGET vs ACTUAL -->
+      <div class="card" style="margin-bottom:18px">
+        <div class="cardHead"><span>📊 Target vs Actual — Profit, ROI & Variance</span></div>
+        <div style="position:relative;height:300px"><canvas id="targetChart"></canvas></div>
+      </div>
+
+      <!-- GAME ANALYSIS SECTION -->
+      <div class="secTitle" id="gameAnalysis">🎮 Game Analysis</div>
+
+      <!-- Platform filter for game charts -->
+      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:11px;color:var(--t2);font-weight:600">Platform:</span>
+        <button class="presetBtn active" data-gplat="" onclick="setGamePlatform('',this)">All</button>
+        <button class="presetBtn" data-gplat="Android" onclick="setGamePlatform('Android',this)">
+          <span style="color:#3ddc84">●</span> Android
+        </button>
+        <button class="presetBtn" data-gplat="iOS" onclick="setGamePlatform('iOS',this)">
+          <span style="color:#007aff">●</span> iOS
+        </button>
+        <button class="presetBtn" data-gplat="Amazon" onclick="setGamePlatform('Amazon',this)">
+          <span style="color:#ff9900">●</span> Amazon
+        </button>
+      </div>
+
+      <div class="g2" style="margin-bottom:18px">
+        <div class="card">
+          <div class="cardHead"><span>Revenue & Profit by Game</span><span id="gameBarPlatLbl" style="font-size:10px;color:var(--teal)"></span></div>
+          <div style="position:relative;height:300px"><canvas id="gameBarChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="cardHead"><span>ROI Ranking — Game &amp; Platform</span></div>
+          <div style="overflow-y:auto;max-height:300px">
+            <table style="width:100%;border-collapse:collapse" id="roiRankTable"></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <div class="cardHead">
+          <span>Daily Revenue Trend</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select class="fsel" id="gameTrendSelect" onchange="renderGameTrend()" style="height:28px;font-size:11px">
+              <option value="">All Games (Top 6)</option>
+            </select>
+          </div>
+        </div>
+        <div style="position:relative;height:280px"><canvas id="gameTrendChart"></canvas></div>
+      </div>
+
+      <!-- DAILY SUMMARY TABLE -->
+      <div class="secTitle">📋 Daily Summary</div>
+      <div class="card" style="margin-bottom:18px;overflow:auto">
+        <div class="cardHead">
+          <span>Latest Day Performance — Game &amp; Platform</span>
+          <span style="font-size:11px;color:var(--t2);font-weight:500" id="dailySummaryDate"></span>
+        </div>
+        <table class="mTable" id="dailySummaryTable">
+          <thead><tr>
+            <th>Game Name</th>
+            <th>Platform</th>
+            <th style="text-align:right">Revenue</th>
+            <th style="text-align:right">Spend</th>
+            <th style="text-align:right">Profit</th>
+            <th style="text-align:right">ROI</th>
+          </tr></thead>
+          <tbody id="dailySummaryBody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TARGETS TAB -->
+  <div class="tabPanel" id="tab-targets">
+    <div class="main">
+      <div class="viewerMsg" id="viewerMsg">🔒 Only Admins can edit targets. Contact your administrator.</div>
+      <div id="targetsEditArea" style="display:none">
+        <div class="targetsGrid">
+          <!-- LEFT -->
+          <div class="tCard">
+            <div class="tCardH">Performance Targets</div>
+            <div class="tCardSub">Set monthly profit & ROI goals and per-game thresholds.</div>
+
+            <!-- GLOBAL -->
+            <div style="margin-bottom:18px">
+              <div class="tSectionLbl">Global Settings</div>
+              <div class="tGlobalGrid">
+                <div class="tGItem"><label>Target Year</label><input type="number" class="tInput" id="tYear" placeholder="2026" min="2020" max="2035"/></div>
+                <div class="tGItem"><label>Default ROI Alert Threshold</label><input type="number" class="tInput" id="tRoiAlert" placeholder="1.20" step="0.01"/></div>
+              </div>
+              <div class="tGlobalGrid">
+                <div class="tGItem">
+                  <label>Quarter GP Target ($)</label>
+                  <input type="number" class="tInput" id="tQuarter" placeholder="Auto from months"/>
+                  <div class="tCalcNote" id="qAutoNote"></div>
+                </div>
+                <div class="tGItem">
+                  <label>Annual GP Target ($)</label>
+                  <input type="number" class="tInput" id="tAnnual" placeholder="Auto from months"/>
+                  <div class="tCalcNote" id="aAutoNote"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MONTHLY -->
+            <div style="margin-bottom:18px">
+              <div class="tSectionLbl">
+                <span>Monthly Targets</span>
+                <button class="tBulkBtn" onclick="openBulkModal()">📋 Set Full Year at Once</button>
+              </div>
+              <div class="tMonthHeader"><span>Month</span><span>Profit Target ($)</span><span>ROI Target</span></div>
+              <div id="monthlyInputs"></div>
+            </div>
+
+            <!-- PER GAME ROI -->
+            <div style="margin-bottom:18px">
+              <div class="tSectionLbl">Per-Game ROI Thresholds</div>
+              <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Leave blank to use default ROI alert threshold.</div>
+              <div class="gameRoiGrid" id="gameRoiInputs"></div>
+            </div>
+
+            <button class="tSaveBtn" onclick="saveTargets()">💾 Save All Targets</button>
+            <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--t3)" id="savedInfo"></div>
+          </div>
+
+          <!-- RIGHT: PREVIEW -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="tCard">
+              <div class="tCardH" style="font-size:15px">Live Preview</div>
+              <div class="tCardSub">Updates as you type</div>
+              <div id="targetPreview"></div>
+            </div>
+            <div class="tCard">
+              <div class="tCardH" style="font-size:15px">How It Works</div>
+              <div style="font-size:12px;color:var(--t2);line-height:1.85">
+                <div style="margin-bottom:8px">📌 <b style="color:var(--t1)">Monthly Profit Target</b> — drives projected month end, achievement % and required daily profit.</div>
+                <div style="margin-bottom:8px">📌 <b style="color:var(--t1)">Monthly ROI Target</b> — shown in monthly table and Target vs Actual chart.</div>
+                <div style="margin-bottom:8px">📌 <b style="color:var(--t1)">Per-Game ROI</b> — each game checked against its own threshold in alerts.</div>
+                <div style="margin-bottom:8px">📌 <b style="color:var(--t1)">Quarter / Annual</b> — manually set or auto-calculated from monthly profit targets.</div>
+                <div>📌 <b style="color:var(--t1)">Auto-calc</b> — leave Quarter/Annual blank to auto-sum from monthly targets.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /app -->
+
+<script>
+/* ═══════════════════════════════════════════════
+   UTILS — DEFINED FIRST
+═══════════════════════════════════════════════ */
+const g  = id => document.getElementById(id);
+const v  = id => g(id) ? g(id).value.trim() : '';
+const fm  = n => '$' + Math.abs(Math.round(n)).toLocaleString();
+const fmK = n => { const a=Math.abs(n); return(n<0?'-':'')+(a>=1e6?'$'+(a/1e6).toFixed(2)+'M':a>=1e3?'$'+(a/1e3).toFixed(1)+'K':'$'+Math.round(a)); };
+// Full number with commas — for KPI cards
+const fmFull = n => { const neg=n<0; const a=Math.abs(Math.round(n)); return(neg?'-':'')+'$'+a.toLocaleString(); };
+const fr2 = n => (+n).toFixed(2);
+const gc  = () => isLight ? 'rgba(0,0,0,.07)' : 'rgba(255,255,255,.055)';
+const tc  = () => isLight ? '#4d6080' : '#7a8fad';
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* ═══════════════════════════════════════════════
+   CONFIG — CHANGE THESE TWO VALUES
+   1. Paste your Apps Script deployment URL below
+   2. Set the same SECRET key you used in Apps Script
+═══════════════════════════════════════════════ */
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwTH-OrtU8UUozKGU5_36P0VJhfNGXfyK2sNIGrH--W-fHU1H3NBWv1GNt6_jLBBJZe/exec';
+const SHEET_API_KEY = 'X9aPq7LmT4zWv2Rb';
+
+/* ═══════════════════════════════════════════════
+   SECURITY CONFIG
+   ▸ Add/remove Gmail addresses in ALLOWED_EMAILS
+   ▸ Each entry: { email, name, password, role }
+   ▸ Passwords are stored as SHA-256 hashes
+   ▸ To generate a hash: open browser console → hashPwd('yourpassword')
+═══════════════════════════════════════════════ */
+
+// ── SHA-256 hashing (Web Crypto API) ──
+async function hashPwd(pwd) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── Session config ──
+const SESSION_HOURS   = 8;
+const MAX_ATTEMPTS    = 5;
+const LOCKOUT_MINUTES = 15;
+
+/* ═══════════════════════════════════════════════
+   AUTH — Users stored in Google Sheet (DashUsers tab)
+   All auth requests go to Apps Script
+   Browser only stores: session token + user info
+═══════════════════════════════════════════════ */
+
+// ── Session helpers (token-based) ──
+function createSession(user, token) {
+  const session = {
+    email:   user.email,
+    name:    user.name,
+    role:    user.role,
+    token:   token,
+    expires: Date.now() + SESSION_HOURS * 3600 * 1000
+  };
+  sessionStorage.setItem('ed_session', JSON.stringify(session));
+  return session;
+}
+function getSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem('ed_session')||'null');
+    if(!s || Date.now() > s.expires) { clearSession(); return null; }
+    return s;
+  } catch(e) { return null; }
+}
+function clearSession() { sessionStorage.removeItem('ed_session'); }
+function getToken() { return getSession()?.token || ''; }
+
+// ── Attempt tracking (local — just for rate limiting) ──
+function getAttempts(email) {
+  try { return JSON.parse(localStorage.getItem('ed_att_'+btoa(email))||'{"count":0,"until":0}'); }
+  catch(e) { return {count:0,until:0}; }
+}
+function setAttempts(email, data) { localStorage.setItem('ed_att_'+btoa(email), JSON.stringify(data)); }
+function clearAttempts(email) { localStorage.removeItem('ed_att_'+btoa(email)); }
+
+// ── User management via Apps Script ──
+async function apiFetch(params) {
+  // file:// protocol cannot make cross-origin requests
+  if(location.protocol === 'file:') {
+    throw new Error('FILE_PROTOCOL');
+  }
+  const qs  = Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  const url = SHEET_API_URL + '?' + qs;
+  try {
+    const res = await fetch(url, { redirect:'follow', mode:'cors' });
+    const txt = await res.text();
+    try { return JSON.parse(txt); }
+    catch(e) { throw new Error('Invalid JSON from server'); }
+  } catch(err) {
+    if(err.message === 'FILE_PROTOCOL') throw err;
+    throw new Error('NETWORK_ERROR');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   TARGETS STORE
+═══════════════════════════════════════════════ */
+const CY = new Date().getFullYear();
+function defaultTargets(yr) {
+  const t = { year:yr, roiAlert:1.20, quarter:null, annual:null, months:{}, gameRoi:{} };
+  MONTHS.forEach((_,i) => { t.months[`${yr}-${String(i+1).padStart(2,'0')}`] = {profit:350000,roi:1.20}; });
+  return t;
+}
+function loadTargets() {
+  try { const s=localStorage.getItem('ed_targets'); return s ? JSON.parse(s) : defaultTargets(CY); }
+  catch(e) { return defaultTargets(CY); }
+}
+let TARGETS = loadTargets();
+const saveTargetsStore = () => localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
+
+// Compute quarter/annual from monthly targets
+function computeAutoTargets() {
+  const yr = TARGETS.year || CY;
+  let q1=0, total=0;
+  MONTHS.forEach((_,i) => {
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const p = TARGETS.months?.[ym]?.profit || 0;
+    total += p;
+    if(i<3) q1 += p;
+  });
+  return { quarter: TARGETS.quarter || q1, annual: TARGETS.annual || total };
+}
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let CU=null, isLight=false;
+let rawData=[], filteredData=[], prevPeriodData=[];
+let refreshTimer=null, lastRefresh=null;
+let charts={};
+let currentPreset='28d';
+let dateFrom='', dateTo='';
+let gaugeState={q:0,a:0};
+// Initialize lastDate to yesterday so presets work before data loads
+window._dataLastDate = (()=>{const d=new Date();d.setDate(d.getDate()-1);d.setHours(0,0,0,0);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;})();
+
+/* ═══════════════════════════════════════════════
+   LOGIN / LOGOUT
+═══════════════════════════════════════════════ */
+// ── Login button loading state ──
+function setLoginLoading(loading) {
+  const btn = document.querySelector('.loginBtn');
+  if(!btn) return;
+  btn.disabled = loading;
+  btn.textContent = loading ? 'Signing in…' : 'Sign In →';
+}
+
+async function doLogin() {
+  const emailRaw = v('lUser').toLowerCase().trim();
+  const pwd      = g('lPass').value;
+  const errEl    = g('loginErr');
+  const lockEl   = g('lockoutMsg');
+
+  if(!emailRaw || !pwd) {
+    errEl.textContent = '⚠ Please enter email and password.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // ── Local lockout check (rate limiting) ──
+  const att = getAttempts(emailRaw);
+  if(att.until > Date.now()) {
+    const mins = Math.ceil((att.until - Date.now()) / 60000);
+    errEl.textContent = `⛔ Too many attempts. Try again in ${mins} min.`;
+    errEl.style.display = 'block';
+    if(lockEl) lockEl.textContent = `Locked for ${mins} more minute(s)`;
+    return;
+  }
+
+  setLoginLoading(true);
+  errEl.style.display = 'none';
+
+  try {
+    // ── Hash password before sending ──
+    const hashed = await hashPwd(pwd);
+
+    // ── Verify with Apps Script ──
+    const resp = await apiFetch({
+      action: 'login',
+      key:    SHEET_API_KEY,
+      email:  emailRaw,
+      pwd:    hashed
+    });
+
+    if(resp.error) {
+      // Record failed attempt locally
+      const a = getAttempts(emailRaw);
+      a.count = (a.count||0) + 1;
+      if(a.count >= MAX_ATTEMPTS) {
+        a.until = Date.now() + LOCKOUT_MINUTES * 60 * 1000;
+        a.count = 0;
+        errEl.textContent = `⛔ Account locked for ${LOCKOUT_MINUTES} minutes.`;
+        if(lockEl) lockEl.textContent = `Too many failed attempts`;
+      } else {
+        const left = MAX_ATTEMPTS - a.count;
+        errEl.textContent = `⚠ Invalid email or password. ${left} attempt(s) remaining.`;
+      }
+      setAttempts(emailRaw, a);
+      errEl.style.display = 'block';
+      g('lPass').value = '';
+      g('lPass').focus();
+      return;
+    }
+
+    // ── SUCCESS ──
+    clearAttempts(emailRaw);
+    const user  = resp.user;
+    const token = resp.token;
+    createSession(user, token);
+    CU = { u: user.email, name: user.name, r: user.role };
+
+    errEl.style.display = 'none';
+    if(lockEl) lockEl.textContent = '';
+    g('lPass').value = '';
+    loginSuccess(user);
+
+  } catch(err) {
+    if(err.message === 'FILE_PROTOCOL') {
+      errEl.textContent = '⚠ File locally khuli hai — server nahi chal raha. Neeche diye steps follow karein.';
+      errEl.style.display = 'block';
+      showFileProtocolWarning();
+    } else if(err.message === 'NETWORK_ERROR') {
+      errEl.textContent = '⚠ Server se connection nahi. Apps Script deploy check karein.';
+      errEl.style.display = 'block';
+    } else {
+      errEl.textContent = '⚠ ' + err.message;
+      errEl.style.display = 'block';
+    }
+  } finally {
+    setLoginLoading(false);
+  }
+}
+
+function showFileProtocolWarning() {
+  // Show a helpful modal explaining the issue
+  const existing = g('fileProtoWarning');
+  if(existing) { existing.style.display='flex'; return; }
+  const div = document.createElement('div');
+  div.id = 'fileProtoWarning';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  div.innerHTML = `<div style="background:#0d1f35;border:1px solid #1e3a5f;border-radius:12px;padding:28px;max-width:480px;width:100%">
+    <div style="font-size:20px;font-weight:700;color:#00e5c3;margin-bottom:6px">⚠️ Server Nahi Chal Raha</div>
+    <div style="font-size:13px;color:#7a8fad;margin-bottom:18px">Yeh file <code style="color:#ffb800">file://</code> protocol se khuli hai — browser security ki wajah se login server se connect nahi kar sakta.</div>
+    <div style="font-size:13px;font-weight:600;color:#b0c4de;margin-bottom:10px">Kya karna hai:</div>
+    <div style="background:#0a1628;border-radius:8px;padding:14px;font-size:12px;color:#7a8fad;line-height:1.8">
+      <b style="color:#00e5c3">Option 1 — VS Code Live Server (Easiest):</b><br>
+      1. VS Code mein file kholo<br>
+      2. Bottom mein "Go Live" click karo<br>
+      3. Browser mein <code style="color:#ffb800">http://127.0.0.1:5500</code> se khulegi<br><br>
+      <b style="color:#00e5c3">Option 2 — Python se:</b><br>
+      Terminal mein file wali folder mein jaao:<br>
+      <code style="color:#ffb800">python -m http.server 8080</code><br>
+      Phir: <code style="color:#ffb800">http://localhost:8080</code><br><br>
+      <b style="color:#00e5c3">Option 3 — Netlify Drop:</b><br>
+      <a href="https://app.netlify.com/drop" target="_blank" style="color:#4d9fff">app.netlify.com/drop</a> pe file drag karo — free hosting
+    </div>
+    <button onclick="this.parentElement.parentElement.style.display='none'" 
+      style="margin-top:16px;width:100%;padding:10px;background:#00e5c3;color:#020d1a;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">
+      Samajh Gaya ✓
+    </button>
+  </div>`;
+  document.body.appendChild(div);
+}
+
+function loginSuccess(user) {
+  g('loginScreen').style.display = 'none';
+  g('app').style.display = 'block';
+  g('rolePill').textContent = user.role.toUpperCase();
+  g('rolePill').className = 'rolePill ' + (user.role==='admin'?'rAdmin':'rViewer');
+  g('unameEl').textContent = user.name || user.email.split('@')[0];
+  if(user.role==='admin') g('userMgmtBtn').style.display='flex';
+  const sess = getSession();
+  if(sess) {
+    const remaining = sess.expires - Date.now();
+    setTimeout(() => {
+      toast('Session expired. Please sign in again.','warn');
+      setTimeout(doLogout, 3000);
+    }, remaining);
+  }
+  setupAutoRefresh();
+  loadData();
+}
+
+// ── Check existing session on page load ──
+function checkSession() {
+  const session = getSession();
+  if(!session) return false;
+  // Restore from stored session — no server call needed (token in sessionStorage)
+  CU = { u: session.email, name: session.name, r: session.role };
+  loginSuccess({ email: session.email, name: session.name, role: session.role });
+  return true;
+}
+
+g('lPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+g('lUser').addEventListener('keydown', e => { if(e.key==='Enter') g('lPass').focus(); });
+
+function doLogout() {
+  clearSession();
+  CU = null;
+  clearInterval(refreshTimer);
+  g('loginScreen').style.display = 'flex';
+  g('app').style.display = 'none';
+  g('lUser').value = '';
+  g('lPass').value = '';
+  g('userMgmtBtn').style.display = 'none';
+  const lockEl = g('lockoutMsg');
+  if(lockEl) lockEl.textContent = '';
+}
+
+/* ═══════════════════════════════════════════════
+   TAB SWITCHING
+═══════════════════════════════════════════════ */
+function switchTab(name, btn) {
+  document.querySelectorAll('.tabPanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
+  g('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  const isDash = name==='dashboard';
+  g('dateBar').style.display = isDash ? 'flex' : 'none';
+  g('csvBtn').style.display  = isDash ? 'flex' : 'none';
+  g('pdfBtn').style.display  = isDash ? 'flex' : 'none';
+  if(name==='targets') buildTargetsUI();
+}
+
+/* ═══════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════ */
+function toggleTheme() {
+  isLight=!isLight;
+  document.body.classList.toggle('lt',isLight);
+  g('themeBtn').textContent = isLight?'🌙 Dark':'☀ Light';
+  Object.values(charts).forEach(c=>{ if(c) c.update(); });
+  renderProjected(); // re-render gauges with correct params
+}
+
+/* ═══════════════════════════════════════════════
+   DATA LOADING
+═══════════════════════════════════════════════ */
+async function loadData(forceRefresh=false) {
+  showLoader(true, forceRefresh ? 'Refreshing data…' : 'Loading data…');
+  try {
+    const isRealURL = SHEET_API_URL &&
+                     !SHEET_API_URL.includes('PASTE_YOUR') &&
+                     SHEET_API_URL.includes('script.google.com') &&
+                     SHEET_API_URL.includes('/exec');
+    if(isRealURL) {
+      // forceRefresh=true when user clicks Refresh button — bypasses cache
+      const refreshParam = forceRefresh ? '&refresh=1' : '';
+      const token = getToken();
+      const url = SHEET_API_URL + '?key=' + encodeURIComponent(SHEET_API_KEY) + (token?'&token='+encodeURIComponent(token):'') + refreshParam;
+      const res = await fetch(url, { redirect:'follow', mode:'cors' });
+      if(!res.ok) throw new Error('Fetch failed: HTTP ' + res.status);
+      const txt = await res.text();
+      let json;
+      try { json = JSON.parse(txt); }
+      catch(pe) { throw new Error('Invalid JSON — check Apps Script deployment'); }
+      if(json.error === 'Unauthorized') throw new Error('Wrong secret key — check SHEET_API_KEY');
+      if(json.error) throw new Error('Apps Script: ' + json.error);
+      if(!json.data || !Array.isArray(json.data)) throw new Error('No data array in response');
+      rawData = parseJSON(json.data);
+      if(!rawData.length) throw new Error('0 rows — check column names in Apps Script');
+      window._fromCache = json._cached || false;
+    } else {
+      window._fromCache = false;
+      rawData = generateDemo();
+      console.warn('Demo mode — paste your /exec URL into SHEET_API_URL');
+    }
+    lastRefresh = new Date();
+    updateRefreshInfo();
+    populateFilterDropdowns();
+    // Compute last available date from sheet data
+    const allDates = rawData.map(r=>r.date).filter(Boolean).sort();
+    window._dataLastDate = allDates[allDates.length-1] || '';
+    applyPresetDates(currentPreset);
+    const _cs = window._fromCache ? ' ⚡ cached' : ' ✓ fresh';
+    toast('Data loaded' + _cs + ' — ' + (window._dataLastDate||''), 'ok');
+  } catch(e) {
+    rawData = generateDemo();
+    populateFilterDropdowns();
+    applyPresetDates(currentPreset);
+    toast('Demo data — ' + e.message,'warn');
+  }
+  showLoader(false);
+}
+function refreshData() { loadData(true); } // force bypass cache
+function setupAutoRefresh() {
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(loadData, 60*60*1000);
+}
+function updateRefreshInfo() {
+  if(!lastRefresh) { g('refreshInfo').textContent='—'; return; }
+  const m = Math.floor((new Date()-lastRefresh)/60000);
+  g('refreshInfo').textContent = m<1?'Just updated':`Updated ${m}m ago`;
+}
+setInterval(updateRefreshInfo, 30000);
+
+/* ═══════════════════════════════════════════════
+   CSV PARSE
+═══════════════════════════════════════════════ */
+function parseCSV(text) {
+  const nl = text.includes('\r\n')?'\r\n':'\n';
+  const lines = text.trim().split(nl).filter(l=>l.trim());
+  if(lines.length<2) return [];
+  const H = splitLine(lines[0]).map(h=>h.toLowerCase().trim().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_'));
+  const ci = (...keys) => { for(const k of keys){const i=H.findIndex(h=>h.includes(k));if(i>=0)return i;}return -1; };
+  const iD=ci('date'), iG=ci('game_name','game','title'), iL=ci('platform','os','channel'),
+        iR=ci('revenue','rev','income'), iSp=ci('spend','cost','expense'),
+        iPr=ci('profit','gp'), iRo=ci('roi','return');
+  return lines.slice(1).map(line=>{
+    const c=splitLine(line);
+    const raw=idx=>idx>=0?(c[idx]||'').trim().replace(/[$,\s]/g,''):'';
+    const num=idx=>{const vv=raw(idx);return vv===''||isNaN(+vv)?null:+vv;};
+    const date=raw(iD);
+    if(!date||date.toLowerCase()==='date') return null;
+    const rev=num(iR)||0, spd=num(iSp)||0;
+    let pro=num(iPr); if(pro===null) pro=rev-spd;
+    let roi=num(iRo); if(roi===null) roi=spd>0?+(rev/spd).toFixed(4):0;
+    return {date:normDate(date),game:raw(iG)||'Unknown',platform:raw(iL)||'Unknown',revenue:rev,spend:spd,profit:pro,roi};
+  }).filter(Boolean);
+}
+function splitLine(l){const r=[];let c='',q=false;for(const ch of l){if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}r.push(c);return r;}
+function isoDate(d){
+  // Use local date, not UTC — avoids timezone off-by-one
+  const yr=d.getFullYear(), mo=String(d.getMonth()+1).padStart(2,'0'), dy=String(d.getDate()).padStart(2,'0');
+  return `${yr}-${mo}-${dy}`;
+}
+function normDate(d){
+  if(!d)return'';
+  const s=String(d).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  // DD-Mon-YY or DD-Mon-YYYY  e.g. 01-Jan-25
+  const m=s.match(/^(\d{1,2})[-\/]([A-Za-z]+)[-\/](\d{2,4})$/);
+  if(m){
+    const mo={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12}[m[2].toLowerCase().slice(0,3)];
+    if(!mo)return s;
+    let yr=+m[3]; if(yr<100)yr+=2000;
+    return`${yr}-${String(mo).padStart(2,'0')}-${String(+m[1]).padStart(2,'0')}`;
+  }
+  // DD/MM/YYYY
+  const m2=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(m2)return`${m2[3]}-${m2[2].padStart(2,'0')}-${m2[1].padStart(2,'0')}`;
+  // Mon DD, YYYY or full date string from Apps Script
+  const dt=new Date(s);
+  if(!isNaN(dt.getTime())){
+    // Use local components to avoid timezone shift
+    return`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  }
+  return s;
+}
+
+/* ═══════════════════════════════════════════════
+   PARSE JSON FROM APPS SCRIPT
+═══════════════════════════════════════════════ */
+function parseJSON(rows) {
+  if(!Array.isArray(rows)||!rows.length) return [];
+  const norm = k=>(k||'').toLowerCase().trim().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_');
+  return rows.map(row=>{
+    const keys=Object.keys(row);
+    const get=(...names)=>{for(const n of names){const k=keys.find(k=>norm(k).includes(n));if(k!==undefined)return row[k];}return null;};
+    const toNum=v=>{const n=+(String(v||'').replace(/[$,\s]/g,''));return isNaN(n)?null:n;};
+    let dateRaw=get('date');
+    // Handle all date formats Apps Script might return
+    if(dateRaw instanceof Date){
+      dateRaw=`${dateRaw.getFullYear()}-${String(dateRaw.getMonth()+1).padStart(2,'0')}-${String(dateRaw.getDate()).padStart(2,'0')}`;
+    } else if(typeof dateRaw==='number'){
+      // Excel/Sheets serial date
+      const d=new Date(Math.round((dateRaw-25569)*86400000));
+      dateRaw=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    } else {
+      dateRaw=String(dateRaw||'').trim();
+    }
+    const date=normDate(dateRaw);
+    if(!date||date.toLowerCase()==='date') return null;
+    const rev=toNum(get('revenue','rev','income'))||0;
+    const spd=toNum(get('spend','cost','expense'))||0;
+    // Sheet only has Date,Game,Platform,Revenue,Spend — profit & ROI calculated
+    const pro = rev - spd;
+    const roi = spd>0 ? +(rev/spd).toFixed(4) : 0;
+    return {
+      date:date, // already normalized above
+      game:String(get('game_name','game','title')||'Unknown'),
+      platform:String(get('platform','os','channel')||'Unknown'),
+      revenue:rev, spend:spd, profit:pro, roi
+    };
+  }).filter(Boolean);
+}
+
+
+/* ═══════════════════════════════════════════════
+   DEMO DATA
+═══════════════════════════════════════════════ */
+function generateDemo() {
+  const games=['Ball Sort','Bottle Flip','Dino Transform','Dream Mall','Hero Transform','My Burger Shop','Supermarket Simulator','Good Mom Bad Mom','Shape Transform'];
+  const plats=['Android','iOS','Amazon'];
+  const rows=[];
+  const yr=TARGETS.year||CY;
+  // Sheet data goes up to yesterday
+  const maxDate=new Date(); maxDate.setDate(maxDate.getDate()-1);
+  const start=new Date(yr,0,1);
+  for(let dt=new Date(start); dt<=maxDate; dt.setDate(dt.getDate()+1)){
+    games.forEach((gm,gi)=>{
+      if(Math.random()<0.65){
+        const pl=plats[gi%3], rev=8000+Math.random()*600000, spd=5000+Math.random()*480000;
+        rows.push({date:dt.toISOString().slice(0,10),game:gm,platform:pl,revenue:rev,spend:spd,profit:rev-spd,roi:+(rev/spd).toFixed(4)});
+      }
+    });
+  }
+  return rows;
+}
+
+/* ═══════════════════════════════════════════════
+   DATE PRESETS
+═══════════════════════════════════════════════ */
+// Yesterday = last valid date (current date excluded)
+// yesterday() removed — sheet data already reflects previous day
+
+
+function applyPreset(btnEl) {
+  const preset = btnEl.dataset.preset;
+  currentPreset = preset;
+  document.querySelectorAll('.presetBtn').forEach(b=>b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if(preset!=='custom') applyPresetDates(preset);
+}
+function onCustomDate() {
+  // User manually changed date inputs — switch to custom mode
+  currentPreset='custom';
+  document.querySelectorAll('.presetBtn').forEach(b=>b.classList.remove('active'));
+  // Cap fTo at yesterday
+  const _capYd = new Date(); _capYd.setDate(_capYd.getDate()-1); _capYd.setHours(0,0,0,0);
+  const _capStr = isoDate(_capYd);
+  if(g('fTo') && g('fTo').value > _capStr) g('fTo').value = _capStr;
+  if(g('fFrom') && g('fFrom').value > _capStr) g('fFrom').value = _capStr;
+  dateFrom = g('fFrom').value;
+  dateTo   = g('fTo').value;
+  applyFilters();
+}
+function applyPresetDates(preset) {
+  // Use last available data date as "to", not just yesterday
+  const _ydBase = new Date(); _ydBase.setDate(_ydBase.getDate()-1); _ydBase.setHours(0,0,0,0);
+  const _ydStr2 = isoDate(_ydBase);
+  // If data loaded and last date is before yesterday, use data's last date
+  const _toStr = (window._dataLastDate && window._dataLastDate < _ydStr2) ? window._dataLastDate : _ydStr2;
+  const yd = new Date(_toStr + 'T00:00:00');
+  let from, to;
+  switch(preset){
+    case '7d':
+      to=new Date(yd); from=new Date(yd); from.setDate(from.getDate()-6); break;
+    case '28d':
+      to=new Date(yd); from=new Date(yd); from.setDate(from.getDate()-27); break;
+    case 'thisMonth':
+      to=new Date(yd); from=new Date(yd.getFullYear(),yd.getMonth(),1); break;
+    case 'lastMonth':
+      to=new Date(yd.getFullYear(),yd.getMonth(),0);
+      from=new Date(to.getFullYear(),to.getMonth(),1); break;
+    case 'thisQuarter':
+      const qStart=Math.floor(yd.getMonth()/3)*3;
+      from=new Date(yd.getFullYear(),qStart,1); to=new Date(yd); break;
+    case 'thisYear':
+      from=new Date(yd.getFullYear(),0,1); to=new Date(yd); break;
+    default: return;
+  }
+  dateFrom=isoDate(from); dateTo=isoDate(to);
+  // Update visible date inputs
+  if(g('fFrom')) g('fFrom').value=dateFrom;
+  if(g('fTo'))   g('fTo').value=dateTo;
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════
+   FILTERS
+═══════════════════════════════════════════════ */
+function populateFilterDropdowns() {
+  const games=[...new Set(rawData.map(r=>r.game))].filter(Boolean).sort();
+  const plats=[...new Set(rawData.map(r=>r.platform))].filter(Boolean).sort();
+  setOpts('fGame',games); setOpts('fPlat',plats);
+  // Populate game trend dropdown
+  const sel=g('gameTrendSelect');
+  if(sel){const cur=sel.value;sel.innerHTML='<option value="">All Games (Top 6)</option>'+games.map(gm=>`<option value="${gm}">${gm}</option>`).join('');if(games.includes(cur))sel.value=cur;}
+}
+function setOpts(id,arr){
+  const el=g(id), cur=el.value;
+  const label = id==='fGame' ? '🎮 All Games' : id==='fPlat' ? '📱 All Platforms' : 'All';
+  el.innerHTML='<option value="">'+label+'</option>'+arr.map(o=>`<option value="${o}">${o}</option>`).join('');
+  if(arr.includes(cur)) el.value=cur;
+}
+
+function applyFilters() {
+  const gm=g('fGame').value, pl=g('fPlat').value;
+  // Cap = last date in data OR yesterday, whichever is earlier
+  const _yd = new Date(); _yd.setDate(_yd.getDate()-1); _yd.setHours(0,0,0,0);
+  const _ydStr = isoDate(_yd);
+  const _cap = (window._dataLastDate && window._dataLastDate < _ydStr) ? window._dataLastDate : _ydStr;
+  // dateFrom/dateTo are set by presets or onCustomDate — never read raw input here
+  const effectiveTo   = (dateTo && dateTo <= _cap) ? dateTo : _cap;
+  const effectiveFrom = dateFrom || '';
+  // Keep inputs in sync with actual values
+  if(g('fTo'))   g('fTo').value   = effectiveTo;
+  if(g('fFrom') && effectiveFrom) g('fFrom').value = effectiveFrom;
+
+  filteredData = rawData.filter(r=>{
+    if(!r.date) return false;
+    if(effectiveFrom && r.date<effectiveFrom) return false;
+    if(r.date>effectiveTo) return false;
+    if(gm && r.game!==gm) return false;
+    if(pl && r.platform!==pl) return false;
+    return true;
+  });
+
+  // Previous period (same duration, immediately before)
+  if(effectiveFrom && effectiveTo) {
+    const days = Math.round((new Date(effectiveTo)-new Date(effectiveFrom))/(1000*86400));
+    const prevTo = new Date(effectiveFrom); prevTo.setDate(prevTo.getDate()-1);
+    const prevFrom = new Date(prevTo); prevFrom.setDate(prevFrom.getDate()-days);
+    const pFrom=isoDate(prevFrom), pTo=isoDate(prevTo);
+    prevPeriodData = rawData.filter(r=>{
+      if(!r.date) return false;
+      if(r.date<pFrom||r.date>pTo) return false;
+      if(gm && r.game!==gm) return false;
+      if(pl && r.platform!==pl) return false;
+      return true;
+    });
+  } else { prevPeriodData=[]; }
+
+  renderAll();
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER ALL
+═══════════════════════════════════════════════ */
+function renderAll(){
+  renderKPIs();
+  renderDaily();
+  renderProjected();
+  renderMonthly();
+  renderTargetChart();
+  renderAlerts();
+  renderGameAnalysis();
+}
+
+/* ═══════════════════════════════════════════════
+   KPIs
+═══════════════════════════════════════════════ */
+function aggData(data){ return data.reduce((a,r)=>({rev:a.rev+r.revenue,spd:a.spd+r.spend,pro:a.pro+r.profit}),{rev:0,spd:0,pro:0}); }
+
+function renderKPIs(){
+  const c=aggData(filteredData), p=aggData(prevPeriodData);
+  const cRoi=c.spd>0?+(c.rev/c.spd).toFixed(2):0;
+  const pRoi=p.spd>0?+(p.rev/p.spd).toFixed(2):0;
+
+  setKPI('kRevVal','kRevChg','kRevPrev', c.rev, p.rev, true);
+  setKPI('kSpdVal','kSpdChg','kSpdPrev', c.spd, p.spd, false);
+  setKPI('kProVal','kProChg','kProPrev', c.pro, p.pro, true);
+  setROIKPI(cRoi, pRoi);
+
+  // Aggregate by date for sparklines (multiple games per day)
+  const sparkByDate={};
+  filteredData.forEach(r=>{
+    if(!sparkByDate[r.date])sparkByDate[r.date]={rev:0,spd:0,pro:0};
+    sparkByDate[r.date].rev+=r.revenue;
+    sparkByDate[r.date].spd+=r.spend;
+    sparkByDate[r.date].pro+=r.profit;
+  });
+  const sparkDates=Object.keys(sparkByDate).sort();
+  const sparkRoi=sparkDates.map(d=>sparkByDate[d].spd>0?+(sparkByDate[d].rev/sparkByDate[d].spd).toFixed(3):null).filter(v=>v!==null);
+  // Draw spark charts with hover tooltips
+  requestAnimationFrame(()=>{
+    spark('spRev', sparkDates.map(d=>sparkByDate[d].rev), sparkDates, '#4d9fff', v=>fmFull(v));
+    spark('spSpd', sparkDates.map(d=>sparkByDate[d].spd), sparkDates, '#ff4d6d', v=>fmFull(v));
+    spark('spPro', sparkDates.map(d=>sparkByDate[d].pro), sparkDates, '#00e5c3', v=>fmFull(v));
+    spark('spRoi', sparkRoi, sparkDates.slice(0,sparkRoi.length), '#ffb800', v=>'ROI: '+v.toFixed(3));
+  });
+}
+
+function setKPI(valId,chgId,prevId,curr,prev,upGood){
+  g(valId).textContent=fmFull(curr);
+  if(prev>0){
+    const pct=(curr-prev)/prev*100, up=pct>=0, good=upGood?up:!up;
+    g(chgId).textContent=(up?'▲':'▼')+' '+Math.abs(pct).toFixed(1)+'%';
+    g(chgId).className='kpiChg '+(good?'up':'dn');
+    g(prevId).textContent='Prev: '+fmFull(prev);
+  } else {
+    g(chgId).textContent='No prev data'; g(chgId).className='kpiChg neu'; g(prevId).textContent='';
+  }
+}
+function setROIKPI(curr,prev){
+  const thr=TARGETS.roiAlert||1.20;
+  g('kRoiVal').textContent=curr.toFixed(2);
+  if(prev>0){
+    const diff=curr-prev, up=diff>=0;
+    g('kRoiChg').textContent=(up?'▲':'▼')+' '+Math.abs(diff).toFixed(3);
+    g('kRoiChg').className='kpiChg '+(up?'up':'dn');
+    g('kRoiPrev').textContent='Prev: '+fr2(prev);
+  } else {
+    g('kRoiChg').textContent=curr>=thr?'✓ Above Target':'⚠ Below Target';
+    g('kRoiChg').className='kpiChg '+(curr>=thr?'up':'dn');
+    g('kRoiPrev').textContent='';
+  }
+}
+
+// Spark charts store — keyed by canvas id
+const sparkCharts={};
+
+function spark(id,vals,dates,color,labelFmt){
+  const canvas=g(id);if(!canvas||vals.length<2)return;
+  if(sparkCharts[id]){sparkCharts[id].destroy();delete sparkCharts[id];}
+
+  let dVals=vals, dDates=dates||[];
+  if(vals.length>60){
+    const step=Math.ceil(vals.length/60);
+    dVals=[]; dDates=[];
+    for(let i=0;i<vals.length;i+=step){
+      const chunk=vals.slice(i,i+step);
+      dVals.push(chunk.reduce((a,b)=>a+b,0)/chunk.length);
+      if(dates&&dates[i]) dDates.push(dates[i]);
+    }
+  }
+
+  const hasNeg=dVals.some(v=>v<0);
+  const mn=hasNeg?Math.min(...dVals)*1.1:0;
+
+  const ctx=canvas.getContext('2d');
+  // Use container height for gradient
+  const boxH=canvas.parentElement?.offsetHeight||80;
+  const grad=ctx.createLinearGradient(0,0,0,boxH);
+  grad.addColorStop(0,color+'99');
+  grad.addColorStop(0.6,color+'44');
+  grad.addColorStop(1,color+'00');
+
+  sparkCharts[id]=new Chart(canvas,{
+    type:'line',
+    data:{
+      labels:dDates.length?dDates.map(d=>fmtLbl(d)):dVals.map((_,i)=>i),
+      datasets:[{
+        data:dVals,
+        borderColor:color,
+        backgroundColor:grad,
+        borderWidth:1.8,
+        pointRadius:0,
+        pointHoverRadius:4,
+        pointHoverBackgroundColor:color,
+        pointHoverBorderColor:'#fff',
+        pointHoverBorderWidth:2,
+        fill:true,
+        tension:0.4
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          enabled:true,
+          backgroundColor:'rgba(10,18,32,0.92)',
+          borderColor:color,
+          borderWidth:1,
+          padding:8,
+          titleFont:{family:'Poppins',size:10,weight:'600'},
+          bodyFont:{family:'DM Mono',size:12},
+          titleColor:'#7a8fad',
+          bodyColor:color,
+          callbacks:{
+            title:items=>{
+              const i=items[0].dataIndex;
+              return dDates[i]?fmtLbl(dDates[i]):'';
+            },
+            label:item=>{
+              const v=item.parsed.y;
+              return labelFmt ? labelFmt(v) : fmFull(v);
+            }
+          }
+        }
+      },
+      scales:{
+        x:{display:false},
+        y:{display:false, min:mn}
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   DAILY CHART (with weekend highlights + rich tooltip)
+═══════════════════════════════════════════════ */
+// Weekend highlight plugin
+const weekendPlugin = {
+  id:'weekends',
+  beforeDraw(chart){
+    const {ctx,chartArea,scales:{x}}=chart;
+    if(!x||!chartArea||!chart._dateMap) return;
+    const {top,bottom}=chartArea;
+    chart.data.labels.forEach((lbl,i)=>{
+      const date=chart._dateMap[i];
+      if(!date) return;
+      const dt=new Date(date+'T00:00:00');
+      const day=dt.getDay();
+      if(day===0||day===6){
+        const xPx=x.getPixelForValue(i);
+        const bw=Math.max(Math.abs((x.getPixelForValue(1)||0)-(x.getPixelForValue(0)||0)),8);
+        ctx.save();
+        ctx.fillStyle=isLight?'rgba(0,0,0,.04)':'rgba(255,255,255,.04)';
+        ctx.fillRect(xPx-bw/2,top,bw,bottom-top);
+        ctx.restore();
+      }
+    });
+  }
+};
+Chart.register(weekendPlugin);
+
+function renderDaily(){
+  const byDate={};
+  filteredData.forEach(r=>{
+    if(!byDate[r.date])byDate[r.date]={rev:0,spd:0,pro:0};
+    byDate[r.date].rev+=r.revenue;byDate[r.date].spd+=r.spend;byDate[r.date].pro+=r.profit;
+  });
+  const dates=Object.keys(byDate).sort();
+  const labels=dates.map(d=>fmtLbl(d));
+  const rois=dates.map(d=>byDate[d].spd>0?+(byDate[d].rev/byDate[d].spd).toFixed(3):null);
+  const validRois=rois.filter(r=>r!==null);
+  const roiMin=validRois.length?Math.max(0,Math.min(...validRois)*0.9):0;
+  const roiMax=validRois.length?Math.max(...validRois)*1.1:3;
+
+  if(charts.daily)charts.daily.destroy();
+  const ch=g('dailyChart').getContext('2d');
+  charts.daily=new Chart(ch,{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Revenue',data:dates.map(d=>byDate[d].rev),backgroundColor:'rgba(77,159,255,.68)',yAxisID:'y',order:2,borderRadius:2},
+      {label:'Spend',  data:dates.map(d=>byDate[d].spd),backgroundColor:'rgba(255,77,109,.68)',yAxisID:'y',order:2,borderRadius:2},
+      {label:'Profit', data:dates.map(d=>byDate[d].pro),backgroundColor:'rgba(0,229,195,.72)',  yAxisID:'y',order:2,borderRadius:2},
+      {label:'ROI',type:'line',data:rois,borderColor:'#ffb800',backgroundColor:'transparent',
+       pointBackgroundColor:'rgba(255,184,0,.45)',pointRadius:3,borderWidth:2.5,yAxisID:'y2',order:1,tension:.38,spanGaps:false}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:tc(),font:{family:'Poppins',size:11},boxWidth:11,padding:12}},
+        tooltip:{
+          mode:'index',intersect:false,
+          callbacks:{
+            title:items=>{
+              const i=items[0].dataIndex;
+              const date=dates[i];
+              const dt=new Date(date+'T00:00:00');
+              const dayName=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()];
+              return `${dayName}, ${fmtLbl(date)}`;
+            },
+            label:ctx=>{
+              if(ctx.dataset.yAxisID==='y2') return ` ROI: ${ctx.parsed.y.toFixed(2)}`;
+              return ` ${ctx.dataset.label}: ${fmK(ctx.parsed.y)}`;
+            },
+            afterBody:items=>{
+              const i=items[0].dataIndex;
+              const d=byDate[dates[i]];
+              const margin=(d.pro/d.rev*100).toFixed(1);
+              return[` Margin: ${margin}%`];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:tc(),font:{size:10,family:'Poppins'},maxRotation:45},grid:{color:gc()}},
+        y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{color:gc()}},
+        y2:{position:'right',min:roiMin,max:roiMax,ticks:{color:'#ffb800',callback:v=>v.toFixed(2),font:{family:'DM Mono',size:10}},grid:{display:false}}
+      }
+    }
+  });
+  // Store date map for weekend plugin
+  charts.daily._dateMap = Object.fromEntries(dates.map((d,i)=>[i,d]));
+}
+
+/* ═══════════════════════════════════════════════
+   PROJECTED MONTH END
+═══════════════════════════════════════════════ */
+/* ═══ MONTH FILTER STATE ═══ */
+let projSelectedMonth = ''; // '' = current month
+let selectedQuarter = 1; // 1=Q1, 2=Q2, 3=Q3, 4=Q4, 0=Year
+
+function selectQuarter(q, btnEl) {
+  selectedQuarter = q;
+  document.querySelectorAll('.qPill').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  renderProjected();
+}
+
+// Get months in a quarter
+function quarterMonths(q, yr) {
+  if(q === 0) return Array.from({length:12},(_,i)=>`${yr}-${String(i+1).padStart(2,'0')}`);
+  const start = (q-1)*3;
+  return [0,1,2].map(i=>`${yr}-${String(start+i+1).padStart(2,'0')}`);
+}
+
+// Quarter target = sum of monthly targets for that quarter
+function quarterTarget(q, yr) {
+  return quarterMonths(q, yr).reduce((s,ym)=>s+(TARGETS.months?.[ym]?.profit||0),0);
+}
+
+function buildMonthFilter(){
+  const yr = TARGETS.year || CY;
+  const now = new Date();
+  // Show months that have data or are current/past
+  const available = MONTHS.map((_,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const hasData=rawData.some(r=>r.date&&r.date.startsWith(ym));
+    const isPast=i<=now.getMonth()&&yr<=now.getFullYear();
+    return{ym,label:MONTHS[i],show:hasData||isPast};
+  }).filter(m=>m.show);
+
+  const wrap=g('monthFilterWrap');
+  if(!wrap)return;
+  // Current month default
+  if(!projSelectedMonth) projSelectedMonth=`${yr}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  wrap.innerHTML=available.map(m=>`
+    <button class="monthPill${projSelectedMonth===m.ym?' active':''}"
+      onclick="projSelectedMonth='${m.ym}';buildMonthFilter();renderProjected()">
+      ${m.label}
+    </button>`).join('');
+}
+
+/* ═══ EXPONENTIAL SMOOTHING PROJECTION ═══ */
+function expSmoothingProjection(dailyProfits){
+  // Holt's simple exponential smoothing
+  // alpha = smoothing factor (0.3 = give more weight to history, 0.7 = recent biased)
+  if(!dailyProfits.length) return 0;
+  if(dailyProfits.length===1) return dailyProfits[0];
+
+  const alpha=0.35; // balance between history and recent
+  let smoothed=dailyProfits[0];
+  for(let i=1;i<dailyProfits.length;i++){
+    smoothed=alpha*dailyProfits[i]+(1-alpha)*smoothed;
+  }
+  return smoothed;
+}
+
+function renderProjected(){
+  buildMonthFilter();
+
+  const yr=TARGETS.year||CY;
+  const ym=projSelectedMonth||`${yr}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+  const [pymYr,pymMo]=ym.split('-').map(Number);
+  const mT=TARGETS.months?.[ym]||{profit:350000,roi:1.20};
+  const target=mT.profit;
+
+  // All month data aggregated by date
+  const monthRows=rawData.filter(r=>r.date&&r.date.startsWith(ym));
+  const byDate={};
+  monthRows.forEach(r=>{
+    if(!byDate[r.date])byDate[r.date]=0;
+    byDate[r.date]+=r.profit;
+  });
+  const sortedDates=Object.keys(byDate).sort();
+  const dailyProfits=sortedDates.map(d=>byDate[d]);
+
+  const curProfit=dailyProfits.reduce((s,v)=>s+v,0);
+  const dim=new Date(pymYr,pymMo,0).getDate(); // days in month
+  const elapsed=sortedDates.length; // actual days with data
+
+  // Smart projection using exponential smoothing
+  const smartDailyAvg=expSmoothingProjection(dailyProfits);
+  const simpleDailyAvg=elapsed>0?curProfit/elapsed:0;
+  const daysLeft=dim-elapsed;
+  const proj=curProfit+(smartDailyAvg*daysLeft); // actual + projected remaining
+  const pct=target>0?Math.min(proj/target*100,999):0;
+  const rem=target-curProfit;
+  const reqD=daysLeft>0&&rem>0?rem/daysLeft:0;
+  const exceeded=curProfit>=target;
+  const isCurrentMonth=(ym===`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`);
+
+  g('projVal').textContent=fmFull(Math.round(proj));
+  g('projTargetLbl').textContent=`Projected vs ${fmFull(target)} target`;
+  g('projPct').textContent=pct.toFixed(1)+'% of target';
+
+  // Badge
+  const badge=g('projBadge');
+  if(!isCurrentMonth&&elapsed>=dim){
+    // Completed month
+    const finalPct=target>0?curProfit/target*100:0;
+    if(finalPct>=100){badge.textContent='✓ Achieved '+finalPct.toFixed(1)+'%';badge.className='projBadge projExceeded';}
+    else{badge.textContent='✗ Missed '+finalPct.toFixed(1)+'%';badge.className='projBadge projBehind';}
+  } else if(exceeded){
+    badge.textContent='🎉 Exceeded!';badge.className='projBadge projExceeded';
+  } else if(pct>=80){
+    badge.textContent='On Track';badge.className='projBadge projOntrack';
+  } else {
+    badge.textContent='Needs Attention';badge.className='projBadge projBehind';
+  }
+
+  // Progress bar
+  const fillPct=target>0?Math.min(curProfit/target*100,100):0;
+  g('projBar').style.width=fillPct+'%';
+  g('projMarker').style.left='100%';
+  g('projMarkerLbl').textContent=fmFull(target);
+
+  // Metrics
+  g('profitMetLbl').textContent=exceeded?'🎉 Profit (Exceeded!)':'Current Profit';
+  g('mCurProfit').textContent=fmFull(curProfit);
+  g('mCurProfit').className='metVal '+(curProfit>=0?'good':'bad');
+
+  if(exceeded){
+    g('remMetLbl').textContent='Exceeded By';
+    g('mRemaining').textContent=fmFull(curProfit-target);
+    g('mRemaining').className='metVal good';
+  } else {
+    g('remMetLbl').textContent='Remaining';
+    g('mRemaining').textContent=fmFull(Math.max(0,rem));
+    g('mRemaining').className='metVal warn';
+  }
+  g('mDailyAvg').textContent=fmFull(Math.round(smartDailyAvg));
+  g('mReqDaily').textContent=reqD>0?fmFull(Math.round(reqD)):'—';
+  g('mReqDaily').className='metVal '+(reqD>smartDailyAvg?'bad':'warn');
+
+  // Method note
+  const noteEl=g('projMethodNote');
+  if(noteEl){
+    if(isCurrentMonth&&elapsed>0){
+      noteEl.textContent=`⚡ EXP smoothing (α=0.35) on ${elapsed} days data — recent days weighted higher`;
+    } else if(!isCurrentMonth){
+      noteEl.textContent=elapsed>=dim?`✓ Month complete — actual: ${fmFull(curProfit)}`:`${elapsed} of ${dim} days recorded`;
+    }
+  }
+
+  // ═══ GAUGES — Quarter filter based ═══
+  const q = selectedQuarter;
+  const qMonths = quarterMonths(q, yr);
+  const qLabel = q===0 ? 'Annual GP Target' : `Q${q} GP Target (${MONTHS[(q-1)*3]}–${MONTHS[Math.min((q-1)*3+2,11)]})`;
+  const annualMonths = quarterMonths(0, yr);
+
+  // Quarter: profit from selected quarter's months
+  const qProfit = rawData.filter(r=>r.date&&qMonths.includes(r.date.slice(0,7))).reduce((s,r)=>s+r.profit,0);
+  const qTarget = q===0 ? computeAutoTargets().annual : quarterTarget(q, yr);
+
+  // Annual: full year profit
+  const yrProfit = rawData.filter(r=>r.date&&r.date.startsWith(String(yr))).reduce((s,r)=>s+r.profit,0);
+  const {annual:aT} = computeAutoTargets();
+
+  // Update quarter gauge title
+  if(g('qGaugeTitle')) g('qGaugeTitle').textContent = qLabel;
+
+  // Quarter gauge
+  gaugeState.q = Math.min(qTarget>0?qProfit/qTarget:0, 2);
+  drawGauge('gaugeQ', gaugeState.q, '#00e5c3', null, '$0', fmK(qTarget));
+  g('gQpct').textContent = (gaugeState.q*100).toFixed(2)+'%';
+  g('gQamt').textContent = 'Profit: '+fmK(qProfit);
+  const qVar = qProfit - qTarget;
+  if(g('gQTarget'))  g('gQTarget').textContent  = fmK(qTarget);
+  if(g('gQAchieved')){g('gQAchieved').textContent=fmK(qProfit); g('gQAchieved').className='gDetailVal hi';}
+  if(g('gQVariance')){
+    g('gQVariance').textContent = (qVar>=0?'+':'')+fmK(qVar);
+    g('gQVariance').className = 'gDetailVal '+(qVar>=0?'pos':'neg');
+  }
+
+  // Annual gauge always shows full year
+  gaugeState.a = Math.min(aT>0?yrProfit/aT:0, 2);
+  drawGauge('gaugeA', gaugeState.a, '#00e5c3', '#1a3050', '$0', fmK(aT));
+  g('gApct').textContent = (gaugeState.a*100).toFixed(2)+'%';
+  g('gAamt').textContent = 'Profit: '+fmK(yrProfit);
+  const aVar = yrProfit - aT;
+  if(g('gATarget'))  g('gATarget').textContent  = fmK(aT);
+  if(g('gAAchieved')){g('gAAchieved').textContent=fmK(yrProfit); g('gAAchieved').className='gDetailVal hi';}
+  if(g('gAVariance')){
+    g('gAVariance').textContent = (aVar>=0?'+':'')+fmK(aVar);
+    g('gAVariance').className = 'gDetailVal '+(aVar>=0?'pos':'neg');
+  }
+}
+
+function drawGauge(id,pct,fill,track,startLbl,endLbl){
+  const c=g(id);if(!c)return;
+  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-18,r=Math.min(W*.40,H*.75);
+  ctx.clearRect(0,0,W,H);
+  // Track arc
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
+  ctx.strokeStyle=track||(isLight?'#dde5f0':'#1a2d47');ctx.lineWidth=16;ctx.lineCap='round';ctx.stroke();
+  // Glow on fill
+  ctx.shadowBlur=pct>0?10:0; ctx.shadowColor=fill;
+  // Fill arc
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.min(pct,1)*Math.PI);
+  ctx.strokeStyle=fill;ctx.lineWidth=16;ctx.lineCap='round';ctx.stroke();
+  ctx.shadowBlur=0;
+  // Left endpoint label — at arc start
+  const lx=cx-r, ly=cy+2;
+  ctx.font='700 9px Poppins';
+  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
+  ctx.textAlign='center';
+  ctx.fillText(startLbl||'$0', lx, ly+16);
+  // Right endpoint label — at arc end
+  const rx=cx+r;
+  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
+  ctx.fillText(endLbl||'', rx, ly+16);
+}
+
+/* ═══════════════════════════════════════════════
+   MONTHLY TABLE
+═══════════════════════════════════════════════ */
+function renderMonthly(){
+  const yr=TARGETS.year||CY;
+  const byM={};
+  rawData.forEach(r=>{
+    const ym=(r.date||'').slice(0,7);
+    if(!ym.startsWith(String(yr)))return;
+    if(!byM[ym])byM[ym]={rev:0,spd:0,pro:0};
+    byM[ym].rev+=r.revenue;byM[ym].spd+=r.spend;byM[ym].pro+=r.profit;
+  });
+  const rows=MONTHS.map((mn,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const mT=TARGETS.months?.[ym]||{profit:0,roi:1.20};
+    const d=byM[ym];
+    const dim=new Date(yr,i+1,0).getDate();
+    const roi=d&&d.spd>0?+(d.rev/d.spd).toFixed(2):null;
+    const delta=d&&mT.profit?d.pro-mT.profit:null;
+    const ach=d&&mT.profit?+(d.pro/mT.profit*100).toFixed(1):null;
+
+    let status='<span class="pill pillN">Pending</span>';
+    if(ach!==null) status=`<span class="pill ${ach>=100?'pillG':ach>=80?'pillA':'pillR'}">${ach>=100?'✓':'✗'} ${ach}%</span>`;
+
+    let roiCell=roi!==null?`<span class="pill ${roi>=(mT.roi||1.20)?'pillG':'pillR'}">${fr2(roi)}</span>`:'<span class="pillN">—</span>';
+    let deltaCell=delta!==null?`<span class="${delta>=0?'deltaPos':'deltaNeg'}">${delta>=0?'+':''}${fmK(delta)}</span>`:'—';
+
+    return`<tr>
+      <td class="nameCol">${mn} '${String(yr).slice(2)}</td>
+      <td>${mT.profit?fm(mT.profit):'<span class="pillN">—</span>'}</td>
+      <td>${d?fmK(d.pro):'—'}</td>
+      <td>${deltaCell}</td>
+      <td>${roiCell}</td>
+      <td style="color:var(--amber);font-family:'DM Mono',monospace">${fr2(mT.roi||1.20)}</td>
+      <td>${status}</td>
+    </tr>`;
+  });
+  g('monthlyBody').innerHTML=rows.join('');
+}
+
+/* ═══════════════════════════════════════════════
+   TARGET vs ACTUAL CHART (with rich tooltip + variance)
+═══════════════════════════════════════════════ */
+function renderTargetChart(){
+  const yr=TARGETS.year||CY;
+  // Force destroy existing chart completely
+  if(charts.target){
+    try{charts.target.destroy();}catch(e){}
+    charts.target=null;
+  }
+  const byM={};
+  rawData.forEach(r=>{
+    const ym=(r.date||'').slice(0,7);
+    if(!ym.startsWith(String(yr)))return;
+    if(!byM[ym])byM[ym]={rev:0,spd:0,pro:0};
+    byM[ym].rev+=r.revenue;byM[ym].spd+=r.spend;byM[ym].pro+=r.profit;
+  });
+  const yms=MONTHS.map((_,i)=>`${yr}-${String(i+1).padStart(2,'0')}`);
+  const actP=yms.map(ym=>byM[ym]?byM[ym].pro:null);
+  const tgtP=yms.map(ym=>TARGETS.months?.[ym]?.profit||null);
+  const actROI=yms.map(ym=>byM[ym]&&byM[ym].spd>0?+(byM[ym].rev/byM[ym].spd).toFixed(2):null);
+  const tgtROI=yms.map(ym=>TARGETS.months?.[ym]?.roi||TARGETS.roiAlert||1.20);
+  const variance=yms.map((ym,i)=>(actP[i]!==null&&tgtP[i]!==null)?actP[i]-tgtP[i]:null);
+
+  if(charts.target)charts.target.destroy();
+  charts.target=new Chart(g('targetChart').getContext('2d'),{
+    type:'bar',
+    data:{labels:MONTHS,datasets:[
+      {label:'Actual Profit',data:actP,backgroundColor:'rgba(0,229,195,.68)',yAxisID:'y',order:3,borderRadius:3},
+      {label:'Variance (Actual−Target)',data:variance,
+       backgroundColor:variance.map(v=>v===null?'transparent':v>=0?'rgba(0,196,122,.5)':'rgba(255,77,109,.5)'),
+       yAxisID:'y',order:2,borderRadius:3},
+      {label:'Target Profit',type:'line',data:tgtP,borderColor:'#4d9fff',borderDash:[5,4],
+       backgroundColor:'transparent',pointRadius:4,pointBackgroundColor:'#4d9fff',yAxisID:'y',order:1,tension:.2},
+      {label:'Actual ROI',type:'line',data:actROI,borderColor:'#ffb800',backgroundColor:'transparent',
+       pointRadius:4,pointBackgroundColor:'#ffb800',yAxisID:'y2',order:1,tension:.35},
+      {label:'Target ROI',type:'line',data:tgtROI,borderColor:'#ff4d6d',borderDash:[4,3],
+       backgroundColor:'transparent',pointRadius:0,yAxisID:'y2',order:1}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:tc(),font:{family:'Poppins',size:11},boxWidth:11,padding:12}},
+        tooltip:{
+          mode:'index',intersect:false,
+          callbacks:{
+            title:items=>MONTHS[items[0].dataIndex]+' '+yr,
+            label:ctx=>{
+              const i=ctx.dataIndex;
+              const lbl=ctx.dataset.label;
+              if(lbl.includes('ROI')||lbl.includes('roi')) return ` ${lbl}: ${ctx.parsed.y!==null?fr2(ctx.parsed.y):'—'}`;
+              return ` ${lbl}: ${ctx.parsed.y!==null?fmK(ctx.parsed.y):'—'}`;
+            },
+            afterBody:items=>{
+              const i=items[0].dataIndex;
+              const ym=yms[i];
+              const d=byM[ym];
+              if(!d) return [];
+              const tgt=TARGETS.months?.[ym]?.profit||0;
+              const ach=tgt?+(d.pro/tgt*100).toFixed(1):null;
+              const achStr=ach!==null?(ach>=100?'✓ '+ach+'%':'✗ '+ach+'%'):'—';
+              const variance=tgt?d.pro-tgt:null;
+              const varStr=variance!==null?(variance>=0?'+':'')+fmK(variance):'—';
+              return[` Achievement: ${achStr}`,` vs Target: ${varStr}`];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:tc(),font:{size:11,family:'Poppins'}},grid:{color:gc()}},
+        y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{color:gc()}},
+        y2:{position:'right',min:0,max:2.5,ticks:{color:'#ffb800',callback:v=>v.toFixed(2),font:{family:'DM Mono',size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   ALERTS (current month, per-game threshold)
+═══════════════════════════════════════════════ */
+function renderAlerts(){
+  const ym=new Date().toISOString().slice(0,7);
+  const curMonthData=rawData.filter(r=>r.date&&r.date.startsWith(ym));
+  // Group by game+platform
+  const byKey={};
+  curMonthData.forEach(r=>{
+    const key=r.game+'|||'+r.platform;
+    if(!byKey[key])byKey[key]={game:r.game,platform:r.platform,rev:0,spd:0};
+    byKey[key].rev+=r.revenue;byKey[key].spd+=r.spend;
+  });
+  const defaultThr=TARGETS.roiAlert||1.20;
+  const alerts=Object.values(byKey)
+    .filter(d=>d.spd>0)
+    .map(d=>{
+      const roi=+(d.rev/d.spd).toFixed(2);
+      const thr=TARGETS.gameRoi?.[d.game]||defaultThr;
+      return{name:d.game+' ('+d.platform+')',roi,thr,below:roi<thr};
+    })
+    .filter(a=>a.below)
+    .sort((a,b)=>a.roi-b.roi);
+
+  const panel=g('alertPanel'),badge=g('alertBadge');
+  if(alerts.length){
+    panel.classList.add('show');badge.classList.add('show');
+    g('alertCount').textContent=alerts.length;
+    g('alertList').innerHTML=alerts.map(a=>`<div class="alertItem">⚠ <b>${a.name}</b> — ROI: <b>${fr2(a.roi)}</b> (threshold: ${fr2(a.thr)})</div>`).join('');
+  } else {
+    panel.classList.remove('show');badge.classList.remove('show');
+  }
+}
+function scrollToAlerts(){g('alertPanel').scrollIntoView({behavior:'smooth'});}
+
+/* ═══════════════════════════════════════════════
+   TARGETS UI
+═══════════════════════════════════════════════ */
+function buildTargetsUI(){
+  const isAdmin=CU?.r==='admin';
+  g('viewerMsg').classList.toggle('show',!isAdmin);
+  g('targetsEditArea').style.display=isAdmin?'block':'none';
+  if(!isAdmin)return;
+
+  const yr=TARGETS.year||CY;
+  g('tYear').value=yr;
+  g('tRoiAlert').value=TARGETS.roiAlert||'';
+  g('tQuarter').value=TARGETS.quarter||'';
+  g('tAnnual').value=TARGETS.annual||'';
+
+  // Auto-calc notes
+  const auto=computeAutoTargets();
+  g('qAutoNote').textContent=`Auto from monthly: ${fmK(auto.quarter)}`;
+  g('aAutoNote').textContent=`Auto from monthly: ${fmK(auto.annual)}`;
+
+  // Monthly inputs
+  g('monthlyInputs').innerHTML=MONTHS.map((_,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const mT=TARGETS.months?.[ym]||{profit:'',roi:''};
+    return`<div class="tMonthRow">
+      <div class="tMonthLbl">${MONTHS[i]}</div>
+      <input type="number" class="tInput" id="tp_${ym}" placeholder="0" value="${mT.profit||''}" oninput="onMonthInput()"/>
+      <input type="number" class="tInput" id="tr_${ym}" placeholder="1.20" step="0.01" value="${mT.roi||''}" oninput="onMonthInput()"/>
+    </div>`;
+  }).join('');
+
+  // Per-game ROI
+  const games=[...new Set(rawData.map(r=>r.game))].filter(Boolean).sort();
+  if(games.length){
+    g('gameRoiInputs').innerHTML=games.map(gm=>{
+      const saved=TARGETS.gameRoi?.[gm]||'';
+      const key=gm.replace(/[^a-zA-Z0-9]/g,'_');
+      return`<div class="gameRoiRow">
+        <div class="gameRoiName" title="${gm}">${gm}</div>
+        <input type="number" class="tInput" id="gr_${key}" data-game="${gm}" placeholder="${fr2(TARGETS.roiAlert||1.20)}" step="0.01" value="${saved}"/>
+      </div>`;
+    }).join('');
+  } else {
+    g('gameRoiInputs').innerHTML='<div style="font-size:12px;color:var(--t3)">Load data first to see games.</div>';
+  }
+  g('bulkYearLbl').textContent=yr;
+  updateTargetPreview();
+  g('monthlyInputs').addEventListener('input',updateTargetPreview);
+  g('tQuarter').addEventListener('input',updateTargetPreview);
+  g('tAnnual').addEventListener('input',updateTargetPreview);
+}
+
+function onMonthInput(){
+  const yr=+v('tYear')||TARGETS.year||CY;
+  let qSum=0,aSum=0;
+  MONTHS.forEach((_,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const p=+(g(`tp_${ym}`)?.value||0);
+    aSum+=p; if(i<3)qSum+=p;
+  });
+  g('qAutoNote').textContent=`Auto from monthly: ${fmK(qSum)}`;
+  g('aAutoNote').textContent=`Auto from monthly: ${fmK(aSum)}`;
+  updateTargetPreview();
+}
+
+function updateTargetPreview(){
+  const yr=+v('tYear')||TARGETS.year||CY;
+  const q=+v('tQuarter')||null, a=+v('tAnnual')||null;
+  let qAuto=0,aAuto=0;
+  MONTHS.forEach((_,i)=>{const ym=`${yr}-${String(i+1).padStart(2,'0')}`;const p=+(g(`tp_${ym}`)?.value||0);aAuto+=p;if(i<3)qAuto+=p;});
+  const rows=MONTHS.map((_,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const p=g(`tp_${ym}`)?.value, r=g(`tr_${ym}`)?.value;
+    return`<div class="tPrevRow"><span class="tPrevM">${MONTHS[i]}</span><div class="tPrevVals"><span class="tPrevP">${p?fmK(+p):'—'}</span><span class="tPrevR">${r?fr2(+r):'—'}</span></div></div>`;
+  }).join('');
+  g('targetPreview').innerHTML=`
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="metItem" style="flex:1"><div class="metLbl">Quarter</div><div class="metVal good">${q?fmK(q):'Auto: '+fmK(qAuto)}</div></div>
+      <div class="metItem" style="flex:1"><div class="metLbl">Annual</div><div class="metVal good">${a?fmK(a):'Auto: '+fmK(aAuto)}</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);display:flex;justify-content:space-between;margin-bottom:6px">
+      <span>Month</span><span style="display:flex;gap:20px"><span style="color:var(--teal)">Profit</span><span style="color:var(--amber)">ROI</span></span>
+    </div>${rows}`;
+}
+
+function saveTargets(){
+  const yr=+v('tYear')||CY;
+  TARGETS.year=yr;
+  TARGETS.roiAlert=+v('tRoiAlert')||TARGETS.roiAlert||1.20;
+  TARGETS.quarter=+v('tQuarter')||null; // null = auto
+  TARGETS.annual =+v('tAnnual') ||null;
+  if(!TARGETS.months)TARGETS.months={};
+  MONTHS.forEach((_,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const p=g(`tp_${ym}`)?.value, r=g(`tr_${ym}`)?.value;
+    TARGETS.months[ym]={profit:p?+p:0,roi:r?+r:1.20};
+  });
+  // per-game ROI
+  if(!TARGETS.gameRoi)TARGETS.gameRoi={};
+  document.querySelectorAll('[id^="gr_"]').forEach(el=>{
+    const gm=el.dataset.game;
+    if(gm) TARGETS.gameRoi[gm]=el.value?+el.value:null;
+  });
+  saveTargetsStore();
+  g('savedInfo').textContent='✓ Saved at '+new Date().toLocaleTimeString();
+  toast('Targets saved!','ok');
+  if(rawData.length) renderAll();
+  updateTargetPreview();
+}
+
+/* BULK MODAL */
+function openBulkModal(){
+  const yr=+v('tYear')||TARGETS.year||CY;
+  g('bulkYearLbl').textContent=yr;
+  g('bulkGrid').innerHTML=MONTHS.map((_,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const mT=TARGETS.months?.[ym]||{profit:'',roi:''};
+    return`<div class="tMonthRow">
+      <div class="tMonthLbl">${MONTHS[i]}</div>
+      <input type="number" class="tInput" id="bp_${ym}" placeholder="0" value="${mT.profit||''}"/>
+      <input type="number" class="tInput" id="br_${ym}" placeholder="1.20" step="0.01" value="${mT.roi||''}"/>
+    </div>`;
+  }).join('');
+  g('bulkOverlay').classList.add('open');
+}
+function closeBulkModal(){g('bulkOverlay').classList.remove('open');}
+function saveBulkTargets(){
+  const yr=+v('tYear')||TARGETS.year||CY;
+  MONTHS.forEach((_,i)=>{
+    const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
+    const p=g(`bp_${ym}`)?.value, r=g(`br_${ym}`)?.value;
+    if(g(`tp_${ym}`))g(`tp_${ym}`).value=p||'';
+    if(g(`tr_${ym}`))g(`tr_${ym}`).value=r||'';
+  });
+  closeBulkModal();
+  onMonthInput();
+  updateTargetPreview();
+  toast('Full year filled — click Save to apply','warn');
+}
+
+/* ═══════════════════════════════════════════════
+   USER MANAGEMENT
+═══════════════════════════════════════════════ */
+function openUserModal(){renderUserTable();g('userOverlay').classList.add('open');}
+function closeUserModal(){g('userOverlay').classList.remove('open');}
+// ── User list cache ──
+let _userList = [];
+
+async function renderUserTable(){
+  g('uTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--t3)">Loading…</td></tr>';
+  try {
+    const resp = await apiFetch({ action:'listUsers', key:SHEET_API_KEY, token:getToken() });
+    if(resp.error) { toast(resp.error,'err'); return; }
+    _userList = resp.users || [];
+    g('uTableBody').innerHTML = _userList.map((u,i) => `<tr>
+      <td style="font-size:12px;color:var(--t1)">${u.email}</td>
+      <td style="font-size:12px;color:var(--t2)">${u.name||'—'}</td>
+      <td><select class="uRoleSel" onchange="changeRole(${i},this.value)">
+        <option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option>
+        <option value="admin"${u.role==='admin'?' selected':''}>Admin</option>
+      </select></td>
+      <td style="text-align:center">
+        <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;background:${u.active!==false?'rgba(0,196,122,.12)':'rgba(255,77,109,.12)'};color:${u.active!==false?'var(--green)':'var(--coral)'}">${u.active!==false?'Active':'Off'}</span>
+      </td>
+      <td><button class="uDel" onclick="deleteUser(${i})" title="Remove user">✕</button></td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--t3)">No users found</td></tr>';
+  } catch(e) {
+    toast('Cannot load users: ' + e.message,'err');
+  }
+}
+
+async function changeRole(i, role){
+  const user = _userList[i];
+  if(!user) return;
+  try {
+    const resp = await apiFetch({ action:'updateRole', key:SHEET_API_KEY, token:getToken(), email:user.email, role });
+    if(resp.error) { toast(resp.error,'err'); return; }
+    toast('Role updated for ' + user.email,'ok');
+    renderUserTable();
+  } catch(e) { toast('Error: '+e.message,'err'); }
+}
+
+async function deleteUser(i){
+  const user = _userList[i];
+  if(!user) return;
+  if(user.email.toLowerCase() === CU.u.toLowerCase()){ toast('Cannot remove yourself','err'); return; }
+  if(!confirm('Remove ' + user.email + '?')) return;
+  try {
+    const resp = await apiFetch({ action:'removeUser', key:SHEET_API_KEY, token:getToken(), email:user.email });
+    if(resp.error) { toast(resp.error,'err'); return; }
+    toast('User removed','ok');
+    renderUserTable();
+  } catch(e) { toast('Error: '+e.message,'err'); }
+}
+
+async function addUser(){
+  const email = v('newU').toLowerCase().trim();
+  const name  = v('newName').trim();
+  const pwd   = g('newP').value;
+  const role  = g('newR').value;
+  if(!email||!pwd){ toast('Email and password required','err'); return; }
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)){ toast('Invalid email address','err'); return; }
+  if(pwd.length<6){ toast('Password must be 6+ characters','err'); return; }
+  const hashed = await hashPwd(pwd);
+  try {
+    const resp = await apiFetch({ action:'addUser', key:SHEET_API_KEY, token:getToken(), email, name:name||email.split('@')[0], pwd:hashed, role });
+    if(resp.error){ toast(resp.error,'err'); return; }
+    g('newU').value=''; g('newName').value=''; g('newP').value='';
+    toast('User added — they can now sign in','ok');
+    renderUserTable();
+  } catch(e) { toast('Error: '+e.message,'err'); }
+}
+
+
+/* ═══════════════════════════════════════════════
+   GAME ANALYSIS
+═══════════════════════════════════════════════ */
+let gamePlatFilter = ''; // '' = all platforms
+
+function setGamePlatform(plat, btnEl) {
+  gamePlatFilter = plat;
+  document.querySelectorAll('[data-gplat]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  // Update label
+  const lbl = g('gameBarPlatLbl');
+  if(lbl) lbl.textContent = plat ? '· ' + plat : '';
+  renderGameBar();
+  renderROIRanking();
+  renderGameTrend();
+}
+
+function getGameData() {
+  // Apply platform filter on top of existing filteredData
+  return gamePlatFilter
+    ? filteredData.filter(r => r.platform === gamePlatFilter)
+    : filteredData;
+}
+
+function renderGameAnalysis(){
+  renderGameBar();
+  renderROIRanking();
+  renderGameTrend();
+  renderDailySummary();
+}
+
+function renderGameBar(){
+  const data = getGameData();
+  // Group by game+platform if no platform filter, else just game
+  const byKey={};
+  data.forEach(r=>{
+    const key = gamePlatFilter ? r.game : r.game+'|||'+r.platform;
+    if(!byKey[key])byKey[key]={label:gamePlatFilter?r.game:r.game+' ('+r.platform+')',rev:0,pro:0};
+    byKey[key].rev+=r.revenue; byKey[key].pro+=r.profit;
+  });
+  const sorted=Object.values(byKey).sort((a,b)=>b.rev-a.rev).slice(0,12);
+  const labels=sorted.map(d=>d.label.length>18?d.label.slice(0,18)+'…':d.label);
+  if(charts.gameBar)charts.gameBar.destroy();
+  charts.gameBar=new Chart(g('gameBarChart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Revenue',data:sorted.map(d=>d.rev),backgroundColor:'rgba(77,159,255,.7)',borderRadius:3},
+        {label:'Profit', data:sorted.map(d=>d.pro),backgroundColor:'rgba(0,229,195,.75)',borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:tc(),font:{family:'Poppins',size:11},boxWidth:11,padding:12}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmK(ctx.parsed.y)}`}}},
+      scales:{
+        x:{ticks:{color:tc(),font:{size:9,family:'Poppins'},maxRotation:45},grid:{color:gc()}},
+        y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{color:gc()}}
+      }
+    }
+  });
+}
+
+function renderROIRanking(){
+  // Group by game + platform combination
+  const byKey={};
+  getGameData().forEach(r=>{
+    const key=r.game+'|||'+r.platform;
+    if(!byKey[key])byKey[key]={game:r.game,platform:r.platform,rev:0,spd:0,pro:0};
+    byKey[key].rev+=r.revenue; byKey[key].spd+=r.spend; byKey[key].pro+=r.profit;
+  });
+  const defaultThr=TARGETS.roiAlert||1.20;
+
+  // Platform badge style
+  const platStyle={
+    'Android':['rgba(61,220,132,.15)','#3ddc84'],
+    'iOS':    ['rgba(0,122,255,.15)', '#007aff'],
+    'Amazon': ['rgba(255,153,0,.15)', '#ff9900'],
+  };
+  function platBadge(p){
+    const [bg,col]=platStyle[p]||['rgba(255,255,255,.1)','#7a8fad'];
+    return `<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;background:${bg};color:${col};letter-spacing:.04em">${p}</span>`;
+  }
+
+  const items=Object.values(byKey)
+    .filter(d=>d.spd>0)
+    .map(d=>{
+      const roi=+(d.rev/d.spd).toFixed(2);
+      const thr=TARGETS.gameRoi?.[d.game]||defaultThr;
+      return{...d,roi,thr};
+    })
+    .sort((a,b)=>b.roi-a.roi);
+
+  const maxRoi=items[0]?.roi||1;
+
+  g('roiRankTable').innerHTML=items.map((d,i)=>`
+    <tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:7px 6px;font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;width:22px;vertical-align:middle">${i+1}</td>
+      <td style="padding:7px 6px;vertical-align:middle">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:600;color:var(--t1)">${d.game}</span>
+          ${platBadge(d.platform)}
+        </div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden">
+          <div style="height:100%;border-radius:99px;width:${Math.min((d.roi/maxRoi*100),100).toFixed(0)}%;background:${d.roi>=d.thr?'var(--teal)':'var(--coral)'}"></div>
+        </div>
+      </td>
+      <td style="padding:7px 6px;text-align:right;vertical-align:middle;white-space:nowrap">
+        <span class="pill ${d.roi>=d.thr?'pillG':'pillR'}">${fr2(d.roi)}</span>
+        <div style="font-size:9px;color:var(--t3);margin-top:2px">thr: ${fr2(d.thr)}</div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderGameTrend(){
+  const sel=g('gameTrendSelect')?.value||'';
+  const baseData=getGameData();
+  const data=sel?baseData.filter(r=>r.game===sel):baseData;
+  const allDates=[...new Set(data.map(r=>r.date))].sort();
+
+  if(sel){
+    const byDate={};
+    data.forEach(r=>{if(!byDate[r.date])byDate[r.date]=0;byDate[r.date]+=r.revenue;});
+    if(charts.gameTrend)charts.gameTrend.destroy();
+    charts.gameTrend=new Chart(g('gameTrendChart').getContext('2d'),{
+      type:'line',
+      data:{labels:allDates.map(fmtLbl),datasets:[{
+        label:sel+' Revenue',data:allDates.map(d=>byDate[d]||null),
+        borderColor:'#00e5c3',backgroundColor:'rgba(0,229,195,.08)',
+        pointRadius:2,borderWidth:2,tension:.35,fill:true,spanGaps:true
+      }]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:tc(),font:{family:'Poppins',size:11}}},
+          tooltip:{callbacks:{label:ctx=>` Revenue: ${fmK(ctx.parsed.y)}`}}},
+        scales:{x:{ticks:{color:tc(),font:{size:10},maxRotation:45},grid:{color:gc()}},
+                y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{color:gc()}}}}
+    });
+  } else {
+    // Top 6 games multi-line
+    const byGame={};
+    filteredData.forEach(r=>{
+      if(!byGame[r.game])byGame[r.game]={};
+      if(!byGame[r.game][r.date])byGame[r.game][r.date]=0;
+      byGame[r.game][r.date]+=r.revenue;
+    });
+    const topGames=Object.keys(byGame)
+      .sort((a,b)=>Object.values(byGame[b]).reduce((s,v)=>s+v,0)-Object.values(byGame[a]).reduce((s,v)=>s+v,0))
+      .slice(0,6);
+    const allD=[...new Set(baseData.map(r=>r.date))].sort();
+    const colors=['#00e5c3','#4d9fff','#ffb800','#ff4d6d','#a78bfa','#34d399'];
+    const datasets=topGames.map((gm,i)=>({
+      label:gm,data:allD.map(d=>byGame[gm][d]||null),
+      borderColor:colors[i],backgroundColor:'transparent',
+      pointRadius:1,borderWidth:2,tension:.35,spanGaps:true
+    }));
+    if(charts.gameTrend)charts.gameTrend.destroy();
+    charts.gameTrend=new Chart(g('gameTrendChart').getContext('2d'),{
+      type:'line',data:{labels:allD.map(fmtLbl),datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:tc(),font:{family:'Poppins',size:11},boxWidth:10,padding:10}},
+          tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmK(ctx.parsed.y)}`}}},
+        scales:{x:{ticks:{color:tc(),font:{size:10},maxRotation:45},grid:{color:gc()}},
+                y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{color:gc()}}}}
+    });
+  }
+}
+
+
+/* ═══════════════════════════════════════════════
+   DAILY SUMMARY TABLE
+═══════════════════════════════════════════════ */
+function renderDailySummary(){
+  // Find last available date in filtered data
+  const dates = [...new Set(filteredData.map(r=>r.date))].filter(Boolean).sort();
+  if(!dates.length){ g('dailySummaryBody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--t3)">No data</td></tr>'; return; }
+  const lastDate = dates[dates.length-1];
+
+  // Update date label
+  const lbl=g('dailySummaryDate');
+  if(lbl) lbl.textContent = fmtLbl(lastDate);
+
+  // Get rows for last date
+  const dayRows = filteredData.filter(r=>r.date===lastDate);
+
+  // Aggregate by game+platform
+  const byKey={};
+  dayRows.forEach(r=>{
+    const key=r.game+'|||'+r.platform;
+    if(!byKey[key])byKey[key]={game:r.game,platform:r.platform,rev:0,spd:0,pro:0};
+    byKey[key].rev+=r.revenue; byKey[key].spd+=r.spend; byKey[key].pro+=r.profit;
+  });
+
+  // Platform colors
+  const platCol={'Android':'#3ddc84','iOS':'#007aff','Amazon':'#ff9900'};
+  const platBg={'Android':'rgba(61,220,132,.12)','iOS':'rgba(0,122,255,.12)','Amazon':'rgba(255,153,0,.12)'};
+
+  const rows=Object.values(byKey)
+    .sort((a,b)=>b.rev-a.rev);
+
+  if(!rows.length){
+    g('dailySummaryBody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--t3)">No data for last date</td></tr>';
+    return;
+  }
+
+  // Total row
+  const totRev=rows.reduce((s,r)=>s+r.rev,0);
+  const totSpd=rows.reduce((s,r)=>s+r.spd,0);
+  const totPro=rows.reduce((s,r)=>s+r.pro,0);
+  const totRoi=totSpd>0?+(totRev/totSpd).toFixed(2):0;
+
+  const roiColor=r=>r.pro>0?'var(--green)':'var(--coral)';
+
+  g('dailySummaryBody').innerHTML=rows.map(r=>{
+    const roi=r.spd>0?+(r.rev/r.spd).toFixed(2):0;
+    const col=platCol[r.platform]||'#7a8fad';
+    const bg=platBg[r.platform]||'rgba(255,255,255,.05)';
+    const roiGood=roi>=(TARGETS.roiAlert||1.20);
+    return`<tr>
+      <td class="nameCol" style="font-size:12px">${r.game}</td>
+      <td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${bg};color:${col}">${r.platform}</span></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--blue)">${fmFull(Math.round(r.rev))}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--coral)">${fmFull(Math.round(r.spd))}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:${r.pro>=0?'var(--green)':'var(--coral)'}">${fmFull(Math.round(r.pro))}</td>
+      <td style="text-align:right"><span class="pill ${roiGood?'pillG':'pillR'}" style="font-size:11px">${fr2(roi)}</span></td>
+    </tr>`;
+  }).join('')+`
+    <tr style="border-top:2px solid var(--borderB);background:var(--card2)">
+      <td class="nameCol" colspan="2" style="font-size:12px;color:var(--t1)">Total</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--blue);font-weight:700">${fmFull(Math.round(totRev))}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--coral);font-weight:700">${fmFull(Math.round(totSpd))}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:${totPro>=0?'var(--green)':'var(--coral)'};font-weight:700">${fmFull(Math.round(totPro))}</td>
+      <td style="text-align:right"><span class="pill ${totRoi>=(TARGETS.roiAlert||1.20)?'pillG':'pillR'}" style="font-size:11px;font-weight:700">${fr2(totRoi)}</span></td>
+    </tr>`;
+}
+/* ═══════════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════════ */
+function exportCSV(){
+  const h=['Date','Game','Platform','Revenue','Spend','Profit','ROI'];
+  const rows=filteredData.map(r=>[r.date,`"${r.game}"`,r.platform,r.revenue.toFixed(2),r.spend.toFixed(2),r.profit.toFixed(2),r.roi.toFixed(4)]);
+  dlBlob(new Blob([[h,...rows].map(r=>r.join(',')).join('\n')],{type:'text/csv'}),'dashboard_export.csv');
+  toast('CSV exported','ok');
+}
+function exportPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape'});
+  const yr=TARGETS.year||CY;
+  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.text('Executive Dashboard Report',14,16);
+  doc.setFontSize(9);doc.setTextColor(120);doc.setFont('helvetica','normal');
+  doc.text(`Year: ${yr}  |  Generated: ${new Date().toLocaleString()}  |  Period: ${dateFrom} → ${dateTo}`,14,23);
+  const c=aggData(filteredData),roi=c.spd>0?+(c.rev/c.spd).toFixed(2):0;
+  doc.setTextColor(0);doc.setFontSize(10);
+  doc.text(`Revenue: ${fm(c.rev)}   Spend: ${fm(c.spd)}   Profit: ${fm(c.pro)}   ROI: ${fr2(roi)}`,14,30);
+  const yms=MONTHS.map((_,i)=>`${yr}-${String(i+1).padStart(2,'0')}`);
+  const byM={};
+  rawData.forEach(r=>{const ym=(r.date||'').slice(0,7);if(!byM[ym])byM[ym]={rev:0,spd:0,pro:0};byM[ym].rev+=r.revenue;byM[ym].spd+=r.spend;byM[ym].pro+=r.profit;});
+  doc.autoTable({
+    head:[['Month','Target','Revenue','Profit','vs Target','ROI','Achievement']],
+    body:yms.map((ym,i)=>{
+      const d=byM[ym],mT=TARGETS.months?.[ym]||{profit:0,roi:1.20};
+      const roi2=d&&d.spd>0?+(d.rev/d.spd).toFixed(2):'-';
+      const delta=d&&mT.profit?d.pro-mT.profit:null;
+      const ach=d&&mT.profit?+(d.pro/mT.profit*100).toFixed(1)+'%':'-';
+      return[MONTHS[i]+" '"+String(yr).slice(2),mT.profit?fm(mT.profit):'-',d?fm(d.rev):'-',d?fm(d.pro):'-',delta!==null?(delta>=0?'+':'')+fm(delta):'-',String(roi2),ach];
+    }),
+    startY:35,styles:{fontSize:8,cellPadding:3},headStyles:{fillColor:[16,24,40],textColor:255}
+  });
+  doc.save('executive_report.pdf');toast('PDF exported','ok');
+}
+function dlBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
+
+/* ═══════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════ */
+function showLoader(on,txt='Loading…'){g('loader').classList.toggle('on',on);if(txt)g('loaderTxt').textContent=txt;}
+let toastT=null;
+function toast(msg,type='ok'){
+  const el=g('toast');el.textContent=msg;
+  el.className='toast '+({ok:'tOk',warn:'tWarn',err:'tErr'}[type]||'tOk')+' on';
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),3500);
+}
+function fmtLbl(d){if(!d)return'';const dt=new Date(d+'T00:00:00');return isNaN(dt)?d:dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});}
+
+// Auto-login on page load (login paused for development)
+window.addEventListener('DOMContentLoaded', () => {
+  if(!checkSession()) {
+    g('loginScreen').style.display = 'flex';
+    // Warn if opened as file://
+    if(location.protocol === 'file:') {
+      setTimeout(showFileProtocolWarning, 800);
+    }
+  }
+});
+</script>
+</body>
+</html>
