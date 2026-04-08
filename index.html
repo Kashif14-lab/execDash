@@ -858,11 +858,55 @@ function defaultTargets(yr) {
   return t;
 }
 function loadTargets() {
-  try { const s=localStorage.getItem('ed_targets'); return s ? JSON.parse(s) : defaultTargets(CY); }
-  catch(e) { return defaultTargets(CY); }
+  // Load from localStorage first (instant), then sync from server
+  try {
+    const s = localStorage.getItem('ed_targets');
+    return s ? JSON.parse(s) : defaultTargets(CY);
+  } catch(e) { return defaultTargets(CY); }
 }
 let TARGETS = loadTargets();
-const saveTargetsStore = () => localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
+
+// Save locally AND to Apps Script
+const saveTargetsStore = () => {
+  localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
+  // Also push to server asynchronously
+  pushTargetsToServer().catch(e => console.warn('Targets server sync failed:', e));
+};
+
+// Push targets to Apps Script (admin only)
+async function pushTargetsToServer() {
+  if(!SHEET_API_URL.includes('script.google.com')) return;
+  const token = getToken();
+  if(!token) return;
+  await apiFetch({
+    action:  'saveTargets',
+    key:     SHEET_API_KEY,
+    token:   token,
+    targets: JSON.stringify(TARGETS)
+  });
+}
+
+// Pull targets from Apps Script (all users)
+async function pullTargetsFromServer() {
+  if(!SHEET_API_URL.includes('script.google.com')) return;
+  try {
+    const token = getToken();
+    const resp  = await apiFetch({
+      action: 'getTargets',
+      key:    SHEET_API_KEY,
+      token:  token || ''
+    });
+    if(resp.targets) {
+      TARGETS = JSON.parse(resp.targets);
+      localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
+      // Re-render with correct targets
+      if(rawData.length) renderAll();
+      populateTargetsForm();
+    }
+  } catch(e) {
+    console.warn('Could not pull targets:', e.message);
+  }
+}
 
 // Compute quarter/annual from monthly targets
 function computeAutoTargets() {
@@ -1034,7 +1078,8 @@ function loginSuccess(user) {
     }, remaining);
   }
   setupAutoRefresh();
-  loadData();
+  // Pull targets from server so all users get same targets
+  loadData().then(()=>pullTargetsFromServer());
 }
 
 // ── Check existing session on page load ──
@@ -1138,7 +1183,7 @@ async function loadData(forceRefresh=false) {
   }
   showLoader(false);
 }
-function refreshData() { loadData(true); } // force bypass cache
+function refreshData() { loadData(true).then(()=>pullTargetsFromServer()); } // force bypass cache
 function setupAutoRefresh() {
   clearInterval(refreshTimer);
   refreshTimer = setInterval(loadData, 60*60*1000);
