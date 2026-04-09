@@ -194,7 +194,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 /* ── GAUGES ── */
 .gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:2px;overflow:hidden}
 .gaugeWrap{text-align:center;width:100%}
-.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:4px}
+.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:10px}
 .gaugeRel{display:block;width:100%;text-align:center;line-height:0}
 .gaugeInfo{text-align:center;margin-top:-10px;padding-bottom:2px}
 .gPct{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--teal);white-space:nowrap}
@@ -537,7 +537,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle" id="qGaugeTitle">Quarter GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeQ" width="210" height="108"></canvas>
+              <canvas id="gaugeQ" width="108" height="100"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gQpct">0%</div>
@@ -564,7 +564,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle">Annual GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeA" width="210" height="108"></canvas>
+              <canvas id="gaugeA" width="108" height="100"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gApct">0%</div>
@@ -1093,7 +1093,7 @@ function loginSuccess(user) {
   }
   setupAutoRefresh();
   // Pull targets from server so all users get same targets
-  loadData().then(()=>pullTargetsFromServer());
+  pullTargetsFromServer().then(()=>loadData());
 }
 
 // ── Check existing session on page load ──
@@ -1885,7 +1885,7 @@ function renderProjected(){
 
 function drawGauge(id,pct,fill,track,startLbl,endLbl){
   const c=g(id);if(!c)return;
-  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-18,r=Math.min(W*.40,H*.75);
+  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-4,r=Math.min(W*.40,H*.80);
   ctx.clearRect(0,0,W,H);
   // Track arc
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
@@ -1901,11 +1901,11 @@ function drawGauge(id,pct,fill,track,startLbl,endLbl){
   ctx.font='700 9px Poppins';
   ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
   ctx.textAlign='center';
-  ctx.fillText(startLbl||'$0', lx, ly+16);
+  ctx.fillText(startLbl||'$0', lx, ly+12);
   // Right endpoint label — at arc end
   const rx=cx+r;
   ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
-  ctx.fillText(endLbl||'', rx, ly+16);
+  ctx.fillText(endLbl||'', rx, ly+12);
 }
 
 /* ═══════════════════════════════════════════════
@@ -2039,7 +2039,7 @@ function renderAlerts(){
     if(!byKey[key])byKey[key]={game:r.game,platform:r.platform,rev:0,spd:0};
     byKey[key].rev+=r.revenue;byKey[key].spd+=r.spend;
   });
-  const defaultThr=TARGETS.roiAlert||1.20;
+  const defaultThr=TARGETS.roiAlert||1.00;
   const alerts=Object.values(byKey)
     .filter(d=>d.spd>0)
     .map(d=>{
