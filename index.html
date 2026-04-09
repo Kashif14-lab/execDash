@@ -192,15 +192,16 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .metVal.good{color:var(--teal)}.metVal.bad{color:var(--coral)}.metVal.warn{color:var(--amber)}
 
 /* ── GAUGES ── */
-.gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:2px;overflow:hidden}
-.gaugeWrap{text-align:center;width:100%}
-.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:10px}
-.gaugeRel{display:block;width:100%;text-align:center;line-height:0}
-.gaugeInfo{text-align:center;margin-top:2px;padding-bottom:4px}
-.gPct{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--teal);white-space:nowrap}
-.gSub{font-size:9px;color:var(--t3);margin-top:1px}
-.gAmt{font-size:10px;color:var(--t2);font-weight:600;margin-top:2px}
-.gaugeDivider{height:1px;background:var(--border);margin:4px 10px}
+.gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:4px;overflow:hidden}
+.gaugeWrap{text-align:center;width:100%;display:flex;flex-direction:column;align-items:center}
+.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
+.gaugeRel{display:block;line-height:0}
+.gaugeRange{display:flex;justify-content:space-between;width:78%;margin:-10px auto 0;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--t3)}
+.gaugeInfo{text-align:center;margin-top:8px;padding-bottom:4px}
+.gPct{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--teal);white-space:nowrap;line-height:1.1}
+.gSub{font-size:9px;color:var(--t3);margin-top:2px;letter-spacing:.04em}
+.gAmt{font-size:11px;color:var(--t2);font-weight:600;margin-top:3px}
+.gaugeDivider{height:1px;background:var(--border);margin:10px 10px;width:calc(100% - 20px)}
 /* Gauge detail strip below arc */
 .gDetail{display:flex;justify-content:space-between;align-items:center;margin-top:3px;padding:6px 8px;background:var(--card2);border-radius:var(--rs);border:1px solid var(--border);width:100%}
 .gDetailItem{text-align:center}
@@ -537,7 +538,11 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle" id="qGaugeTitle">Quarter GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeQ" width="200" height="110"></canvas>
+              <canvas id="gaugeQ" width="220" height="108"></canvas>
+            </div>
+            <div class="gaugeRange">
+              <span id="gQRangeMin">$0</span>
+              <span id="gQRangeMax">$0</span>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gQpct">0%</div>
@@ -564,7 +569,11 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle">Annual GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeA" width="200" height="110"></canvas>
+              <canvas id="gaugeA" width="220" height="108"></canvas>
+            </div>
+            <div class="gaugeRange">
+              <span id="gARangeMin">$0</span>
+              <span id="gARangeMax">$0</span>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gApct">0%</div>
@@ -1858,7 +1867,8 @@ function renderProjected(){
 
   // Quarter gauge
   gaugeState.q = Math.min(qTarget>0?qProfit/qTarget:0, 2);
-  drawGauge('gaugeQ', gaugeState.q, '#00e5c3', null, '$0', fmK(qTarget));
+  drawGauge('gaugeQ', gaugeState.q, '#00e5c3', null);
+  if(g('gQRangeMax')) g('gQRangeMax').textContent = fmK(qTarget);
   g('gQpct').textContent = (gaugeState.q*100).toFixed(2)+'%';
   g('gQamt').textContent = 'Profit: '+fmK(qProfit);
   const qVar = qProfit - qTarget;
@@ -1871,7 +1881,8 @@ function renderProjected(){
 
   // Annual gauge always shows full year
   gaugeState.a = Math.min(aT>0?yrProfit/aT:0, 2);
-  drawGauge('gaugeA', gaugeState.a, '#00e5c3', '#1a3050', '$0', fmK(aT));
+  drawGauge('gaugeA', gaugeState.a, '#00e5c3', '#1a3050');
+  if(g('gARangeMax')) g('gARangeMax').textContent = fmK(aT);
   g('gApct').textContent = (gaugeState.a*100).toFixed(2)+'%';
   g('gAamt').textContent = 'Profit: '+fmK(yrProfit);
   const aVar = yrProfit - aT;
@@ -1883,9 +1894,9 @@ function renderProjected(){
   }
 }
 
-function drawGauge(id,pct,fill,track,startLbl,endLbl){
+function drawGauge(id,pct,fill,track){
   const c=g(id);if(!c)return;
-  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-28,r=Math.min(W*.30,H*.72);
+  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-14,r=Math.min(W*.42,H*.78);
   ctx.clearRect(0,0,W,H);
   // Track arc
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
@@ -1896,16 +1907,6 @@ function drawGauge(id,pct,fill,track,startLbl,endLbl){
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.min(pct,1)*Math.PI);
   ctx.strokeStyle=fill;ctx.lineWidth=16;ctx.lineCap='round';ctx.stroke();
   ctx.shadowBlur=0;
-  // Left endpoint label — at arc start
-  const lx=cx-r, ly=cy+2;
-  ctx.font='700 9px Poppins';
-  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
-  ctx.textAlign='center';
-  ctx.fillText(startLbl||'$0', lx, ly+12);
-  // Right endpoint label — at arc end
-  const rx=cx+r;
-  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
-  ctx.fillText(endLbl||'', rx, ly+12);
 }
 
 /* ═══════════════════════════════════════════════
