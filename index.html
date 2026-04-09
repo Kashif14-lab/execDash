@@ -192,12 +192,12 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .metVal.good{color:var(--teal)}.metVal.bad{color:var(--coral)}.metVal.warn{color:var(--amber)}
 
 /* ── GAUGES ── */
-.gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:2px;overflow:hidden}
+.gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:4px;overflow:hidden}
 .gaugeWrap{text-align:center;width:100%}
-.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:10px}
+.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
 .gaugeRel{display:block;width:100%;text-align:center;line-height:0}
-.gaugeInfo{text-align:center;margin-top:-10px;padding-bottom:2px}
-.gPct{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--teal);white-space:nowrap}
+.gaugeInfo{text-align:center;margin-top:-18px;padding-bottom:4px}
+.gPct{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--teal);white-space:nowrap}
 .gSub{font-size:9px;color:var(--t3);margin-top:1px}
 .gAmt{font-size:10px;color:var(--t2);font-weight:600;margin-top:2px}
 .gaugeDivider{height:1px;background:var(--border);margin:4px 10px}
@@ -537,7 +537,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle" id="qGaugeTitle">Quarter GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeQ" width="108" height="100"></canvas>
+              <canvas id="gaugeQ" width="220" height="120"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gQpct">0%</div>
@@ -564,7 +564,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle">Annual GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeA" width="108" height="100"></canvas>
+              <canvas id="gaugeA" width="220" height="120"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gApct">0%</div>
@@ -771,7 +771,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
    1. Paste your Apps Script deployment URL below
    2. Set the same SECRET key you used in Apps Script
 ═══════════════════════════════════════════════ */
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyZCbzcqcewAS4EJ49kGP8P2G-_kvi1c0lC6UDS_Wyx6sFAspItIdu-mksXAaglNp-U/exec';
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwTH-OrtU8UUozKGU5_36P0VJhfNGXfyK2sNIGrH--W-fHU1H3NBWv1GNt6_jLBBJZe/exec';
 const SHEET_API_KEY = 'X9aPq7LmT4zWv2Rb';
 
 /* ═══════════════════════════════════════════════
@@ -1093,7 +1093,7 @@ function loginSuccess(user) {
   }
   setupAutoRefresh();
   // Pull targets from server so all users get same targets
-  pullTargetsFromServer().then(()=>loadData());
+  loadData().then(()=>pullTargetsFromServer());
 }
 
 // ── Check existing session on page load ──
@@ -1885,27 +1885,42 @@ function renderProjected(){
 
 function drawGauge(id,pct,fill,track,startLbl,endLbl){
   const c=g(id);if(!c)return;
-  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-4,r=Math.min(W*.40,H*.80);
+  const W=c.width, H=c.height, cx=W/2;
+  const ctx=c.getContext('2d');
   ctx.clearRect(0,0,W,H);
-  // Track arc
-  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
-  ctx.strokeStyle=track||(isLight?'#dde5f0':'#1a2d47');ctx.lineWidth=16;ctx.lineCap='round';ctx.stroke();
-  // Glow on fill
-  ctx.shadowBlur=pct>0?10:0; ctx.shadowColor=fill;
-  // Fill arc
-  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.min(pct,1)*Math.PI);
-  ctx.strokeStyle=fill;ctx.lineWidth=16;ctx.lineCap='round';ctx.stroke();
-  ctx.shadowBlur=0;
-  // Left endpoint label — at arc start
-  const lx=cx-r, ly=cy+2;
-  ctx.font='700 9px Poppins';
-  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
-  ctx.textAlign='center';
-  ctx.fillText(startLbl||'$0', lx, ly+12);
-  // Right endpoint label — at arc end
-  const rx=cx+r;
-  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
-  ctx.fillText(endLbl||'', rx, ly+12);
+
+  // Arc center sits near bottom, radius fills most of width
+  const r  = W * 0.38;
+  const cy = H - 18;     // leave 18px below for labels
+  const lw = 14;         // stroke width
+
+  // Track arc (background)
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI, 2*Math.PI);
+  ctx.strokeStyle = track||(isLight?'#dde5f0':'#1a2d47');
+  ctx.lineWidth   = lw;
+  ctx.lineCap     = 'round';
+  ctx.stroke();
+
+  // Fill arc with glow
+  if(pct > 0){
+    ctx.shadowBlur  = 12;
+    ctx.shadowColor = fill;
+  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI, Math.PI + Math.min(pct,1)*Math.PI);
+  ctx.strokeStyle = fill;
+  ctx.lineWidth   = lw;
+  ctx.lineCap     = 'round';
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Endpoint labels — below arc ends
+  ctx.font      = '600 8.5px Poppins';
+  ctx.fillStyle = '#3d5a7a';
+  ctx.textAlign = 'center';
+  ctx.fillText(startLbl||'$0',  cx - r, cy + 15);
+  ctx.fillText(endLbl  ||'',    cx + r, cy + 15);
 }
 
 /* ═══════════════════════════════════════════════
@@ -2039,7 +2054,7 @@ function renderAlerts(){
     if(!byKey[key])byKey[key]={game:r.game,platform:r.platform,rev:0,spd:0};
     byKey[key].rev+=r.revenue;byKey[key].spd+=r.spend;
   });
-  const defaultThr=TARGETS.roiAlert||1.00;
+  const defaultThr=TARGETS.roiAlert||1.20;
   const alerts=Object.values(byKey)
     .filter(d=>d.spd>0)
     .map(d=>{
