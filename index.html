@@ -771,7 +771,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
    1. Paste your Apps Script deployment URL below
    2. Set the same SECRET key you used in Apps Script
 ═══════════════════════════════════════════════ */
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbx-z5VAcblqQLgfGUcSQbFV3vcb7RDwPHHDxbW2ebH_49uZ-qz4PW9aEk8S5txkwkuQ/exec';
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyZCbzcqcewAS4EJ49kGP8P2G-_kvi1c0lC6UDS_Wyx6sFAspItIdu-mksXAaglNp-U/exec';
 const SHEET_API_KEY = 'X9aPq7LmT4zWv2Rb';
 
 /* ═══════════════════════════════════════════════
@@ -876,32 +876,46 @@ const saveTargetsStore = () => {
 // Push targets to Apps Script (admin only)
 async function pushTargetsToServer() {
   if(!SHEET_API_URL.includes('script.google.com')) return;
+  if(CU?.r !== 'admin') return;
   const token = getToken();
   if(!token) return;
-  await apiFetch({
-    action:  'saveTargets',
-    key:     SHEET_API_KEY,
-    token:   token,
-    targets: JSON.stringify(TARGETS)
-  });
+  try {
+    const resp = await apiFetch({
+      action:  'saveTargets',
+      key:     SHEET_API_KEY,
+      token:   token,
+      targets: JSON.stringify(TARGETS)
+    });
+    if(resp?.success) console.log('Targets synced to server ✓');
+    else console.warn('Targets sync failed:', resp?.error);
+  } catch(e) { console.warn('Targets push error:', e.message); }
 }
 
-// Pull targets from Apps Script (all users)
+// Pull targets from Apps Script (all users — no auth needed)
 async function pullTargetsFromServer() {
   if(!SHEET_API_URL.includes('script.google.com')) return;
   try {
-    const token = getToken();
-    const resp  = await apiFetch({
+    // getTargets is public — just needs key, no token required
+    const resp = await apiFetch({
       action: 'getTargets',
-      key:    SHEET_API_KEY,
-      token:  token || ''
+      key:    SHEET_API_KEY
     });
+    if(resp.error) {
+      console.warn('getTargets error:', resp.error);
+      return;
+    }
     if(resp.targets) {
-      TARGETS = JSON.parse(resp.targets);
-      localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
-      // Re-render with correct targets
-      if(rawData.length) renderAll();
-      populateTargetsForm();
+      const serverTargets = JSON.parse(resp.targets);
+      // Only update if server has data
+      if(serverTargets && Object.keys(serverTargets).length > 0) {
+        TARGETS = serverTargets;
+        localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
+        console.log('Targets loaded from server (' + (resp.source||'') + ')');
+        if(rawData.length) renderAll();
+        populateTargetsForm();
+      }
+    } else {
+      console.log('No targets on server yet — using local');
     }
   } catch(e) {
     console.warn('Could not pull targets:', e.message);
