@@ -91,7 +91,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .refreshInfo{font-size:11px;color:var(--t3);white-space:nowrap}
 
 /* ── DATE PRESETS ── */
-.dateBar{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dateBar{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:48px;z-index:99;backdrop-filter:blur(8px)}
 .presetBtn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--t2);transition:all .2s;white-space:nowrap}
 .presetBtn:hover{border-color:var(--teal);color:var(--teal)}
 .presetBtn.active{background:var(--tealD);border-color:var(--teal);color:var(--teal)}
@@ -771,7 +771,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
    1. Paste your Apps Script deployment URL below
    2. Set the same SECRET key you used in Apps Script
 ═══════════════════════════════════════════════ */
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwTH-OrtU8UUozKGU5_36P0VJhfNGXfyK2sNIGrH--W-fHU1H3NBWv1GNt6_jLBBJZe/exec';
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbx-z5VAcblqQLgfGUcSQbFV3vcb7RDwPHHDxbW2ebH_49uZ-qz4PW9aEk8S5txkwkuQ/exec';
 const SHEET_API_KEY = 'X9aPq7LmT4zWv2Rb';
 
 /* ═══════════════════════════════════════════════
