@@ -196,7 +196,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .gaugeWrap{text-align:center;width:100%}
 .gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:10px}
 .gaugeRel{display:block;width:100%;text-align:center;line-height:0}
-.gaugeInfo{text-align:center;margin-top:-6px;padding-bottom:4px}
+.gaugeInfo{text-align:center;margin-top:2px;padding-bottom:4px}
 .gPct{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--teal);white-space:nowrap}
 .gSub{font-size:9px;color:var(--t3);margin-top:1px}
 .gAmt{font-size:10px;color:var(--t2);font-weight:600;margin-top:2px}
@@ -537,7 +537,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle" id="qGaugeTitle">Quarter GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeQ" width="108" height="100"></canvas>
+              <canvas id="gaugeQ" width="200" height="110"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gQpct">0%</div>
@@ -564,7 +564,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle">Annual GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeA" width="108" height="100"></canvas>
+              <canvas id="gaugeA" width="200" height="110"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gApct">0%</div>
@@ -1885,7 +1885,7 @@ function renderProjected(){
 
 function drawGauge(id,pct,fill,track,startLbl,endLbl){
   const c=g(id);if(!c)return;
-  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-26,r=Math.min(W*.40,H*.80);
+  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-28,r=Math.min(W*.30,H*.72);
   ctx.clearRect(0,0,W,H);
   // Track arc
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
