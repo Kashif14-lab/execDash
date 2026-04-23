@@ -91,7 +91,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .refreshInfo{font-size:11px;color:var(--t3);white-space:nowrap}
 
 /* ── DATE PRESETS ── */
-.dateBar{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:48px;z-index:99;backdrop-filter:blur(8px)}
+.dateBar{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .presetBtn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--t2);transition:all .2s;white-space:nowrap}
 .presetBtn:hover{border-color:var(--teal);color:var(--teal)}
 .presetBtn.active{background:var(--tealD);border-color:var(--teal);color:var(--teal)}
@@ -192,16 +192,15 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .metVal.good{color:var(--teal)}.metVal.bad{color:var(--coral)}.metVal.warn{color:var(--amber)}
 
 /* ── GAUGES ── */
-.gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:4px;overflow:hidden}
-.gaugeWrap{text-align:center;width:100%;display:flex;flex-direction:column;align-items:center}
-.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
-.gaugeRel{display:block;line-height:0}
-.gaugeRange{display:flex;justify-content:space-between;width:78%;margin:-10px auto 0;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--t3)}
-.gaugeInfo{text-align:center;margin-top:8px;padding-bottom:4px}
-.gPct{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--teal);white-space:nowrap;line-height:1.1}
-.gSub{font-size:9px;color:var(--t3);margin-top:2px;letter-spacing:.04em}
-.gAmt{font-size:11px;color:var(--t2);font-weight:600;margin-top:3px}
-.gaugeDivider{height:1px;background:var(--border);margin:10px 10px;width:calc(100% - 20px)}
+.gaugeSection{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;box-shadow:var(--shs);display:flex;flex-direction:column;align-items:center;gap:2px;overflow:hidden}
+.gaugeWrap{text-align:center;width:100%}
+.gaugeTitle{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);margin-bottom:4px}
+.gaugeRel{display:block;width:100%;text-align:center;line-height:0}
+.gaugeInfo{text-align:center;margin-top:-10px;padding-bottom:2px}
+.gPct{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--teal);white-space:nowrap}
+.gSub{font-size:9px;color:var(--t3);margin-top:1px}
+.gAmt{font-size:10px;color:var(--t2);font-weight:600;margin-top:2px}
+.gaugeDivider{height:1px;background:var(--border);margin:4px 10px}
 /* Gauge detail strip below arc */
 .gDetail{display:flex;justify-content:space-between;align-items:center;margin-top:3px;padding:6px 8px;background:var(--card2);border-radius:var(--rs);border:1px solid var(--border);width:100%}
 .gDetailItem{text-align:center}
@@ -538,11 +537,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle" id="qGaugeTitle">Quarter GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeQ" width="220" height="108"></canvas>
-            </div>
-            <div class="gaugeRange">
-              <span id="gQRangeMin">$0</span>
-              <span id="gQRangeMax">$0</span>
+              <canvas id="gaugeQ" width="210" height="108"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gQpct">0%</div>
@@ -569,11 +564,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <div class="gaugeWrap">
             <div class="gaugeTitle">Annual GP Target</div>
             <div class="gaugeRel">
-              <canvas id="gaugeA" width="220" height="108"></canvas>
-            </div>
-            <div class="gaugeRange">
-              <span id="gARangeMin">$0</span>
-              <span id="gARangeMax">$0</span>
+              <canvas id="gaugeA" width="210" height="108"></canvas>
             </div>
             <div class="gaugeInfo">
               <div class="gPct" id="gApct">0%</div>
@@ -604,7 +595,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
           <table class="mTable">
             <thead><tr>
               <th>Month</th><th>Target</th><th>Profit</th>
-              <th>vs Target (Δ)</th><th>ROI</th><th>ROI Tgt</th><th>Status</th>
+              <th>vs Target (Δ)</th><th>Req. Daily</th><th>ROI</th><th>ROI Tgt</th><th>Status</th>
             </tr></thead>
             <tbody id="monthlyBody"></tbody>
           </table>
@@ -780,7 +771,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
    1. Paste your Apps Script deployment URL below
    2. Set the same SECRET key you used in Apps Script
 ═══════════════════════════════════════════════ */
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyZCbzcqcewAS4EJ49kGP8P2G-_kvi1c0lC6UDS_Wyx6sFAspItIdu-mksXAaglNp-U/exec';
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwTH-OrtU8UUozKGU5_36P0VJhfNGXfyK2sNIGrH--W-fHU1H3NBWv1GNt6_jLBBJZe/exec';
 const SHEET_API_KEY = 'X9aPq7LmT4zWv2Rb';
 
 /* ═══════════════════════════════════════════════
@@ -867,69 +858,11 @@ function defaultTargets(yr) {
   return t;
 }
 function loadTargets() {
-  // Load from localStorage first (instant), then sync from server
-  try {
-    const s = localStorage.getItem('ed_targets');
-    return s ? JSON.parse(s) : defaultTargets(CY);
-  } catch(e) { return defaultTargets(CY); }
+  try { const s=localStorage.getItem('ed_targets'); return s ? JSON.parse(s) : defaultTargets(CY); }
+  catch(e) { return defaultTargets(CY); }
 }
 let TARGETS = loadTargets();
-
-// Save locally AND to Apps Script
-const saveTargetsStore = () => {
-  localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
-  // Also push to server asynchronously
-  pushTargetsToServer().catch(e => console.warn('Targets server sync failed:', e));
-};
-
-// Push targets to Apps Script (admin only)
-async function pushTargetsToServer() {
-  if(!SHEET_API_URL.includes('script.google.com')) return;
-  if(CU?.r !== 'admin') return;
-  const token = getToken();
-  if(!token) return;
-  try {
-    const resp = await apiFetch({
-      action:  'saveTargets',
-      key:     SHEET_API_KEY,
-      token:   token,
-      targets: JSON.stringify(TARGETS)
-    });
-    if(resp?.success) console.log('Targets synced to server ✓');
-    else console.warn('Targets sync failed:', resp?.error);
-  } catch(e) { console.warn('Targets push error:', e.message); }
-}
-
-// Pull targets from Apps Script (all users — no auth needed)
-async function pullTargetsFromServer() {
-  if(!SHEET_API_URL.includes('script.google.com')) return;
-  try {
-    // getTargets is public — just needs key, no token required
-    const resp = await apiFetch({
-      action: 'getTargets',
-      key:    SHEET_API_KEY
-    });
-    if(resp.error) {
-      console.warn('getTargets error:', resp.error);
-      return;
-    }
-    if(resp.targets) {
-      const serverTargets = JSON.parse(resp.targets);
-      // Only update if server has data
-      if(serverTargets && Object.keys(serverTargets).length > 0) {
-        TARGETS = serverTargets;
-        localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
-        console.log('Targets loaded from server (' + (resp.source||'') + ')');
-        if(rawData.length) renderAll();
-        populateTargetsForm();
-      }
-    } else {
-      console.log('No targets on server yet — using local');
-    }
-  } catch(e) {
-    console.warn('Could not pull targets:', e.message);
-  }
-}
+const saveTargetsStore = () => localStorage.setItem('ed_targets', JSON.stringify(TARGETS));
 
 // Compute quarter/annual from monthly targets
 function computeAutoTargets() {
@@ -1101,8 +1034,7 @@ function loginSuccess(user) {
     }, remaining);
   }
   setupAutoRefresh();
-  // Pull targets from server so all users get same targets
-  pullTargetsFromServer().then(()=>loadData());
+  loadData();
 }
 
 // ── Check existing session on page load ──
@@ -1206,7 +1138,7 @@ async function loadData(forceRefresh=false) {
   }
   showLoader(false);
 }
-function refreshData() { loadData(true).then(()=>pullTargetsFromServer()); } // force bypass cache
+function refreshData() { loadData(true); } // force bypass cache
 function setupAutoRefresh() {
   clearInterval(refreshTimer);
   refreshTimer = setInterval(loadData, 60*60*1000);
@@ -1867,8 +1799,7 @@ function renderProjected(){
 
   // Quarter gauge
   gaugeState.q = Math.min(qTarget>0?qProfit/qTarget:0, 2);
-  drawGauge('gaugeQ', gaugeState.q, '#00e5c3', null);
-  if(g('gQRangeMax')) g('gQRangeMax').textContent = fmK(qTarget);
+  drawGauge('gaugeQ', gaugeState.q, '#00e5c3', null, '$0', fmK(qTarget));
   g('gQpct').textContent = (gaugeState.q*100).toFixed(2)+'%';
   g('gQamt').textContent = 'Profit: '+fmK(qProfit);
   const qVar = qProfit - qTarget;
@@ -1881,8 +1812,7 @@ function renderProjected(){
 
   // Annual gauge always shows full year
   gaugeState.a = Math.min(aT>0?yrProfit/aT:0, 2);
-  drawGauge('gaugeA', gaugeState.a, '#00e5c3', '#1a3050');
-  if(g('gARangeMax')) g('gARangeMax').textContent = fmK(aT);
+  drawGauge('gaugeA', gaugeState.a, '#00e5c3', '#1a3050', '$0', fmK(aT));
   g('gApct').textContent = (gaugeState.a*100).toFixed(2)+'%';
   g('gAamt').textContent = 'Profit: '+fmK(yrProfit);
   const aVar = yrProfit - aT;
@@ -1894,9 +1824,9 @@ function renderProjected(){
   }
 }
 
-function drawGauge(id,pct,fill,track){
+function drawGauge(id,pct,fill,track,startLbl,endLbl){
   const c=g(id);if(!c)return;
-  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-14,r=Math.min(W*.42,H*.78);
+  const ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H-18,r=Math.min(W*.40,H*.75);
   ctx.clearRect(0,0,W,H);
   // Track arc
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
@@ -1907,6 +1837,16 @@ function drawGauge(id,pct,fill,track){
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.min(pct,1)*Math.PI);
   ctx.strokeStyle=fill;ctx.lineWidth=16;ctx.lineCap='round';ctx.stroke();
   ctx.shadowBlur=0;
+  // Left endpoint label — at arc start
+  const lx=cx-r, ly=cy+2;
+  ctx.font='700 9px Poppins';
+  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
+  ctx.textAlign='center';
+  ctx.fillText(startLbl||'$0', lx, ly+16);
+  // Right endpoint label — at arc end
+  const rx=cx+r;
+  ctx.fillStyle=isLight?'#7a8fad':'#7a8fad';
+  ctx.fillText(endLbl||'', rx, ly+16);
 }
 
 /* ═══════════════════════════════════════════════
@@ -1914,21 +1854,62 @@ function drawGauge(id,pct,fill,track){
 ═══════════════════════════════════════════════ */
 function renderMonthly(){
   const yr=TARGETS.year||CY;
+  const now=new Date();
+  const todayYm=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  // Aggregate by month and track days with data for each month
   const byM={};
+  const daysInMonth={};
   rawData.forEach(r=>{
     const ym=(r.date||'').slice(0,7);
     if(!ym.startsWith(String(yr)))return;
     if(!byM[ym])byM[ym]={rev:0,spd:0,pro:0};
     byM[ym].rev+=r.revenue;byM[ym].spd+=r.spend;byM[ym].pro+=r.profit;
+    if(!daysInMonth[ym])daysInMonth[ym]=new Set();
+    daysInMonth[ym].add(r.date);
   });
   const rows=MONTHS.map((mn,i)=>{
     const ym=`${yr}-${String(i+1).padStart(2,'0')}`;
     const mT=TARGETS.months?.[ym]||{profit:0,roi:1.20};
     const d=byM[ym];
-    const dim=new Date(yr,i+1,0).getDate();
+    const dim=new Date(yr,i+1,0).getDate(); // total days in month
     const roi=d&&d.spd>0?+(d.rev/d.spd).toFixed(2):null;
     const delta=d&&mT.profit?d.pro-mT.profit:null;
     const ach=d&&mT.profit?+(d.pro/mT.profit*100).toFixed(1):null;
+
+    // Required daily profit calculation
+    let reqDailyCell='—';
+    const mDate=new Date(yr,i,1);
+    const isFuture=mDate > now && ym !== todayYm;
+    const isPast=ym < todayYm;
+    const isCurrent=ym === todayYm;
+
+    if(mT.profit>0){
+      if(isFuture){
+        // Future month — required daily = target / total days in month
+        const req=mT.profit/dim;
+        reqDailyCell=`<span style="color:var(--t2)">${fmK(req)}</span><div style="font-size:9px;color:var(--t3);margin-top:1px">${dim} days</div>`;
+      } else if(isCurrent){
+        // Current month — required daily from today = remaining / days left
+        const curProfit=d?d.pro:0;
+        const rem=mT.profit-curProfit;
+        const daysLeft=dim-now.getDate()+1;
+        if(rem<=0){
+          reqDailyCell=`<span style="color:var(--green);font-weight:700">✓ Met</span>`;
+        } else if(daysLeft>0){
+          const req=rem/daysLeft;
+          reqDailyCell=`<span style="color:var(--amber);font-weight:700">${fmK(req)}</span><div style="font-size:9px;color:var(--t3);margin-top:1px">${daysLeft} days left</div>`;
+        } else {
+          reqDailyCell=`<span style="color:var(--coral)">—</span>`;
+        }
+      } else if(isPast){
+        // Past month — show what daily was actually needed vs achieved
+        const req=mT.profit/dim;
+        const daysWithData=daysInMonth[ym]?daysInMonth[ym].size:0;
+        const actualDaily=daysWithData>0&&d?d.pro/daysWithData:0;
+        const col=actualDaily>=req?'var(--green)':'var(--coral)';
+        reqDailyCell=`<span style="color:${col}">${fmK(req)}</span><div style="font-size:9px;color:var(--t3);margin-top:1px">actual: ${fmK(actualDaily)}</div>`;
+      }
+    }
 
     let status='<span class="pill pillN">Pending</span>';
     if(ach!==null) status=`<span class="pill ${ach>=100?'pillG':ach>=80?'pillA':'pillR'}">${ach>=100?'✓':'✗'} ${ach}%</span>`;
@@ -1941,6 +1922,7 @@ function renderMonthly(){
       <td>${mT.profit?fm(mT.profit):'<span class="pillN">—</span>'}</td>
       <td>${d?fmK(d.pro):'—'}</td>
       <td>${deltaCell}</td>
+      <td>${reqDailyCell}</td>
       <td>${roiCell}</td>
       <td style="color:var(--amber);font-family:'DM Mono',monospace">${fr2(mT.roi||1.20)}</td>
       <td>${status}</td>
@@ -2040,7 +2022,7 @@ function renderAlerts(){
     if(!byKey[key])byKey[key]={game:r.game,platform:r.platform,rev:0,spd:0};
     byKey[key].rev+=r.revenue;byKey[key].spd+=r.spend;
   });
-  const defaultThr=TARGETS.roiAlert||1.00;
+  const defaultThr=TARGETS.roiAlert||1.20;
   const alerts=Object.values(byKey)
     .filter(d=>d.spd>0)
     .map(d=>{
