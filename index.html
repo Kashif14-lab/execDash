@@ -90,8 +90,11 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .alertBadge.show{display:flex}
 .refreshInfo{font-size:11px;color:var(--t3);white-space:nowrap}
 
-/* ── DATE PRESETS ── */
-.dateBar{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* ── DATE PRESETS / DASHBOARD FILTER BAR ──
+   Boxed + sticky to match the LTV tab's filter bar.
+   `top` value matches the topbar height so the bar stops just below it. */
+.dateBar{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;position:sticky;top:60px;z-index:100;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.lt .dateBar{box-shadow:0 4px 14px rgba(0,0,0,.06)}
 .presetBtn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--t2);transition:all .2s;white-space:nowrap}
 .presetBtn:hover{border-color:var(--teal);color:var(--teal)}
 .presetBtn.active{background:var(--tealD);border-color:var(--teal);color:var(--teal)}
@@ -315,7 +318,10 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 ::-webkit-scrollbar-thumb{background:var(--borderB);border-radius:3px}
 
 /* ── LTV TAB ── */
-.ltvBar{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+/* Filter bar sticks just under the topbar (60px tall) so it stays
+   accessible while scrolling through the LTV sections. */
+.ltvBar{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;position:sticky;top:60px;z-index:100;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.lt .ltvBar{box-shadow:0 4px 14px rgba(0,0,0,.06)}
 .ltvBar .lbLbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-right:4px}
 .ltvTypeToggle{display:inline-flex;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:2px;gap:2px}
 .ltvTypeToggle button{background:transparent;border:none;color:var(--t2);font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;padding:4px 12px;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -458,8 +464,8 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
     <div class="tsep"></div>
     <div class="tabNav">
       <button class="tabBtn active" onclick="switchTab('dashboard',this)">Dashboard</button>
-      <button class="tabBtn" onclick="switchTab('targets',this)">Targets</button>
       <button class="tabBtn" onclick="switchTab('ltv',this)">LTV</button>
+      <button class="tabBtn" onclick="switchTab('targets',this)">Targets</button>
     </div>
     <div class="topRight">
       <div class="alertBadge" id="alertBadge" onclick="scrollToAlerts()">⚠ <span id="alertCount">0</span> Alerts</div>
@@ -475,27 +481,27 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
     </div>
   </div>
 
-  <!-- DATE BAR (dashboard only) -->
-  <div class="dateBar" id="dateBar">
-    <button class="presetBtn" data-preset="7d" onclick="applyPreset(this)">Last 7D</button>
-    <button class="presetBtn active" data-preset="28d" onclick="applyPreset(this)">Last 28D</button>
-    <button class="presetBtn" data-preset="thisMonth" onclick="applyPreset(this)">This Month</button>
-    <button class="presetBtn" data-preset="lastMonth" onclick="applyPreset(this)">Last Month</button>
-    <button class="presetBtn" data-preset="thisQuarter" onclick="applyPreset(this)">This Quarter</button>
-    <button class="presetBtn" data-preset="thisYear" onclick="applyPreset(this)">This Year</button>
-    <div class="tsep" style="height:20px;margin:0 2px"></div>
-    <select class="fsel" id="fGame" onchange="applyFilters()"><option value="">🎮 All Games</option></select>
-    <select class="fsel" id="fPlat" onchange="applyFilters()"><option value="">📱 All Platforms</option></select>
-    <div class="tsep" style="height:20px;margin:0 2px"></div>
-    <label style="font-size:11px;color:var(--t3);font-weight:500;white-space:nowrap">From</label>
-    <input type="date" class="fsel" id="fFrom" onchange="onCustomDate()"/>
-    <label style="font-size:11px;color:var(--t3);font-weight:500;white-space:nowrap">To</label>
-    <input type="date" class="fsel" id="fTo" onchange="onCustomDate()"/>
-  </div>
-
   <!-- DASHBOARD TAB -->
   <div class="tabPanel active" id="tab-dashboard">
     <div class="main">
+
+      <!-- DATE / FILTER BAR — boxed + sticky, matches LTV tab style -->
+      <div class="dateBar" id="dateBar">
+        <button class="presetBtn" data-preset="7d" onclick="applyPreset(this)">Last 7D</button>
+        <button class="presetBtn active" data-preset="28d" onclick="applyPreset(this)">Last 28D</button>
+        <button class="presetBtn" data-preset="thisMonth" onclick="applyPreset(this)">This Month</button>
+        <button class="presetBtn" data-preset="lastMonth" onclick="applyPreset(this)">Last Month</button>
+        <button class="presetBtn" data-preset="thisQuarter" onclick="applyPreset(this)">This Quarter</button>
+        <button class="presetBtn" data-preset="thisYear" onclick="applyPreset(this)">This Year</button>
+        <div class="tsep" style="height:20px;margin:0 2px"></div>
+        <select class="fsel" id="fGame" onchange="applyFilters()"><option value="">🎮 All Games</option></select>
+        <select class="fsel" id="fPlat" onchange="applyFilters()"><option value="">📱 All Platforms</option></select>
+        <div class="tsep" style="height:20px;margin:0 2px"></div>
+        <label style="font-size:11px;color:var(--t3);font-weight:500;white-space:nowrap">From</label>
+        <input type="date" class="fsel" id="fFrom" onchange="onCustomDate()"/>
+        <label style="font-size:11px;color:var(--t3);font-weight:500;white-space:nowrap">To</label>
+        <input type="date" class="fsel" id="fTo" onchange="onCustomDate()"/>
+      </div>
 
       <!-- ALERTS -->
       <div class="alertPanel" id="alertPanel">
@@ -1238,8 +1244,9 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
   g('tab-'+name).classList.add('active');
   btn.classList.add('active');
+  // Date bar now lives inside the dashboard panel — no manual show/hide needed.
+  // CSV / PDF still only relevant on the dashboard tab.
   const isDash = name==='dashboard';
-  g('dateBar').style.display = isDash ? 'flex' : 'none';
   g('csvBtn').style.display  = isDash ? 'flex' : 'none';
   g('pdfBtn').style.display  = isDash ? 'flex' : 'none';
   if(name==='targets') buildTargetsUI();
@@ -2753,6 +2760,14 @@ function parseAppName(s){
   return { plat: '', game: s };
 }
 
+// Sheet has an "All" / "All Countries" row that's the team's pre-aggregated
+// total (because we deliberately don't pull every country to stay under
+// API limits). Treat that row as the dropdown's default "All Countries"
+// option — don't surface it as a separate selectable country.
+function isAllCountry(s){
+  return /^all(\s*countries?)?$/i.test(String(s||'').trim());
+}
+
 async function buildLtvUI(){
   // Lazy: fetch once per session, then re-render on filter change.
   if(!_ltvLoaded){
@@ -2798,7 +2813,8 @@ function populateLtvDropdowns(){
   (ltvData||[]).forEach(r => {
     if(r.game) games.add(r.game);
     if(r.plat) plats.add(r.plat);
-    if(r.country) countries.add(r.country);
+    // Skip "All"-like values — those become the default option, not a separate one
+    if(r.country && !isAllCountry(r.country)) countries.add(r.country);
   });
   const fill = (id, set, prefix) => {
     const el = g(id); if(!el) return;
@@ -2880,9 +2896,16 @@ function getLtvFiltered(){
   ltvFilters.to      = v('ltvTo');
   return (ltvData||[]).filter(r=>{
     if(r.type !== ltvFilters.type) return false;
-    if(ltvFilters.game    && r.game    !== ltvFilters.game)    return false;
-    if(ltvFilters.plat    && r.plat    !== ltvFilters.plat)    return false;
-    if(ltvFilters.country && r.country !== ltvFilters.country) return false;
+    if(ltvFilters.game && r.game !== ltvFilters.game) return false;
+    if(ltvFilters.plat && r.plat !== ltvFilters.plat) return false;
+    // Country filter: empty selection means "All Countries" → use the
+    // pre-aggregated "All" rows in the sheet (NOT a sum of individual
+    // countries, since we only have a subset of countries).
+    if(ltvFilters.country){
+      if(r.country !== ltvFilters.country) return false;
+    } else {
+      if(!isAllCountry(r.country)) return false;
+    }
     if(ltvFilters.from && r.installDate && r.installDate < ltvFilters.from) return false;
     if(ltvFilters.to   && r.installDate && r.installDate > ltvFilters.to)   return false;
     return true;
@@ -2967,7 +2990,11 @@ function renderLtvCurve(rows){
   const allFiltered = (ltvData||[]).filter(r=>{
     if(ltvFilters.game && r.game !== ltvFilters.game) return false;
     if(ltvFilters.plat && r.plat !== ltvFilters.plat) return false;
-    if(ltvFilters.country && r.country !== ltvFilters.country) return false;
+    if(ltvFilters.country){
+      if(r.country !== ltvFilters.country) return false;
+    } else {
+      if(!isAllCountry(r.country)) return false;
+    }
     if(ltvFilters.from && r.installDate && r.installDate < ltvFilters.from) return false;
     if(ltvFilters.to   && r.installDate && r.installDate > ltvFilters.to)   return false;
     return true;
@@ -3031,7 +3058,11 @@ function renderLtvPerformance(){
   const allFiltered = (ltvData||[]).filter(r=>{
     if(ltvFilters.game    && r.game    !== ltvFilters.game)    return false;
     if(ltvFilters.plat    && r.plat    !== ltvFilters.plat)    return false;
-    if(ltvFilters.country && r.country !== ltvFilters.country) return false;
+    if(ltvFilters.country){
+      if(r.country !== ltvFilters.country) return false;
+    } else {
+      if(!isAllCountry(r.country)) return false;
+    }
     if(ltvFilters.from && r.installDate && r.installDate < ltvFilters.from) return false;
     if(ltvFilters.to   && r.installDate && r.installDate > ltvFilters.to)   return false;
     return true;
