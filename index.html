@@ -946,7 +946,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
      shipped to the client — auth happens via short-lived login tokens
      stored in sessionStorage.
 ═══════════════════════════════════════════════ */
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxCjLA9EUPcWINARcKj2Iv7kBef9fCGHNC8nb-bBXT2_lmwEgrfXMelkbjLFhcTCcUa/exec';
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwTH-OrtU8UUozKGU5_36P0VJhfNGXfyK2sNIGrH--W-fHU1H3NBWv1GNt6_jLBBJZe/exec';
 
 /* ═══════════════════════════════════════════════
    SECURITY CONFIG
@@ -1795,9 +1795,12 @@ function renderDaily(){
         }
       },
       scales:{
-        x:{ticks:{color:tc(),font:{size:10,family:'Poppins'},maxRotation:45},grid:{color:gc()}},
-        y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{color:gc()}},
-        y2:{position:'right',min:roiMin,max:roiMax,ticks:{color:'#ffb800',callback:v=>v.toFixed(2),font:{family:'DM Mono',size:10}},grid:{display:false}}
+        // Grid lines removed for a cleaner, more "informative chart" feel —
+        // the data alone communicates trend, no scaffolding needed. Axis
+        // border kept off too so the plot floats on the card surface.
+        x:{ticks:{color:tc(),font:{size:10,family:'Poppins'},maxRotation:45},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{display:false},border:{display:false}},
+        y2:{position:'right',min:roiMin,max:roiMax,ticks:{color:'#ffb800',callback:v=>v.toFixed(2),font:{family:'DM Mono',size:10}},grid:{display:false},border:{display:false}}
       }
     }
   });
