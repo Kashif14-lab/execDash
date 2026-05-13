@@ -1769,6 +1769,9 @@ function renderDaily(){
     options:{
       responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
+      // Reserve breathing room on left/right so axis tick labels
+      // (esp. y2 ROI values like "1.72") don't clip after the grid removal.
+      layout:{padding:{left:4,right:8,top:4,bottom:0}},
       plugins:{
         legend:{labels:{color:tc(),font:{family:'Poppins',size:11},boxWidth:11,padding:12}},
         tooltip:{
@@ -1798,9 +1801,10 @@ function renderDaily(){
         // Grid lines removed for a cleaner, more "informative chart" feel —
         // the data alone communicates trend, no scaffolding needed. Axis
         // border kept off too so the plot floats on the card surface.
-        x:{ticks:{color:tc(),font:{size:10,family:'Poppins'},maxRotation:45},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10}},grid:{display:false},border:{display:false}},
-        y2:{position:'right',min:roiMin,max:roiMax,ticks:{color:'#ffb800',callback:v=>v.toFixed(2),font:{family:'DM Mono',size:10}},grid:{display:false},border:{display:false}}
+        // `ticks.padding` keeps labels from butting up against the bars.
+        x:{ticks:{color:tc(),font:{size:10,family:'Poppins'},maxRotation:45,padding:4},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:tc(),callback:v=>fmK(v),font:{family:'Poppins',size:10},padding:6},grid:{display:false},border:{display:false}},
+        y2:{position:'right',min:roiMin,max:roiMax,ticks:{color:'#ffb800',callback:v=>v.toFixed(2),font:{family:'DM Mono',size:10},padding:6},grid:{display:false},border:{display:false}}
       }
     }
   });
