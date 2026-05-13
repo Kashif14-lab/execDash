@@ -381,6 +381,16 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
 .ltvEmpty{padding:30px 20px;text-align:center;color:var(--t3);font-size:13px}
 .ltvLoading{padding:40px 20px;text-align:center;color:var(--t2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:10px}
 .ltvLoading::before{content:'';display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
+
+/* Day-toggle chips above cumulative curves chart */
+.ltvDayChips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.ltvDayChip{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);cursor:pointer;transition:all .15s;user-select:none;letter-spacing:.02em}
+.ltvDayChip:hover{color:var(--t1);border-color:var(--borderB)}
+.ltvDayChip.on{background:var(--tealD);color:var(--teal);border-color:rgba(0,229,195,.4)}
+.ltvDayChips .ltvChipLbl{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);padding:4px 6px 4px 0;align-self:center}
+
+/* Performance Trends control bar */
+.ltvPerfBar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:6px}
 </style>
 </head>
 <body>
@@ -855,9 +865,33 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--t1);min-h
       <div class="card" style="margin-bottom:14px">
         <div class="cardHead">
           <span>LTV Cumulative Curves</span>
-          <span style="font-size:10px;font-weight:500;color:var(--t3);text-transform:none;letter-spacing:0">Avg LTV per install across all selected cohorts</span>
+          <span style="font-size:10px;font-weight:500;color:var(--t3);text-transform:none;letter-spacing:0">Avg LTV per install · click any day below to show/hide it on the chart</span>
         </div>
+        <!-- Day chips: each chip toggles whether that day appears in the chart.
+             Default = key milestones (D7, D14, D30) on, others off. -->
+        <div class="ltvDayChips" id="ltvDayChips"></div>
         <div style="position:relative;height:340px"><canvas id="ltvCurveChart"></canvas></div>
+      </div>
+
+      <!-- Performance Trends — date-wise trend of a chosen cohort day -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="cardHead">
+          <span>Performance Trends</span>
+          <span style="font-size:10px;font-weight:500;color:var(--t3);text-transform:none;letter-spacing:0">How a single cohort day's LTV changes across install dates</span>
+        </div>
+        <div class="ltvPerfBar">
+          <span class="lbLbl">Period</span>
+          <select class="fsel" id="ltvPerfPeriod" onchange="renderLtvPerformance()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly avg</option>
+            <option value="monthly">Monthly avg</option>
+          </select>
+          <span class="lbLbl" style="margin-left:8px">Cohort Day</span>
+          <select class="fsel" id="ltvPerfDay" onchange="renderLtvPerformance()">
+            <!-- populated from JS so it stays in sync with day list -->
+          </select>
+        </div>
+        <div style="position:relative;height:300px;margin-top:12px"><canvas id="ltvPerfChart"></canvas></div>
       </div>
 
       <!-- Cohort heatmap -->
@@ -2698,8 +2732,14 @@ window.addEventListener('DOMContentLoaded', () => {
 const LTV_DAYS_STD = ['D0','D1','D3','D7','D14','D21','D28','D30'];
 const LTV_DAYS_EXT = ['D0','D1','D3','D7','D14','D21','D28','D30','D40','D45','D50'];
 const LTV_KPI_DAYS = ['D7','D14','D30'];
+// Days that the cumulative-curves chart starts with (other days are
+// optional — user toggles them via the chip row). Key milestones default on.
+const LTV_DAYS_DEFAULT_VISIBLE = ['D0','D7','D14','D30'];
 let   ltvData = null;       // raw rows from Apps Script
 let   ltvFilters = { type:'Total LTV', game:'', plat:'', country:'', from:'', to:'', range:'standard' };
+let   ltvVisibleDays = new Set(LTV_DAYS_DEFAULT_VISIBLE);
+let   ltvPerfDay = 'D7';     // selected day for Performance Trends
+let   ltvPerfPeriod = 'daily';
 let   ltvLeadSort = { col:'D30', dir:'desc' };
 let   ltvShowAll  = false;
 let   _ltvLoaded  = false;
@@ -2778,7 +2818,49 @@ function setLtvType(type, btn){
 function setLtvRange(range, btn){
   ltvFilters.range = range;
   document.querySelectorAll('.ltvDayToggle button').forEach(b=>b.classList.toggle('on', b===btn));
+  // Re-seed visible-day set so chips list reflects newly available days.
+  // Keep currently-checked defaults that still exist in the active range.
+  const allDays = range === 'extended' ? LTV_DAYS_EXT : LTV_DAYS_STD;
+  const next = new Set();
+  LTV_DAYS_DEFAULT_VISIBLE.forEach(d => { if(allDays.includes(d)) next.add(d); });
+  // Preserve user-added days that still belong to the range
+  ltvVisibleDays.forEach(d => { if(allDays.includes(d)) next.add(d); });
+  ltvVisibleDays = next;
   renderLtv();
+}
+
+function toggleLtvDay(day){
+  if(ltvVisibleDays.has(day)){
+    if(ltvVisibleDays.size === 1) return; // need at least one
+    ltvVisibleDays.delete(day);
+  } else {
+    ltvVisibleDays.add(day);
+  }
+  renderLtvDayChips();
+  renderLtvCurve(getLtvFiltered());
+}
+
+function renderLtvDayChips(){
+  const wrap = g('ltvDayChips');
+  if(!wrap) return;
+  const allDays = ltvFilters.range === 'extended' ? LTV_DAYS_EXT : LTV_DAYS_STD;
+  wrap.innerHTML = '<span class="ltvChipLbl">Days on chart</span>'
+    + allDays.map(d => {
+        const on = ltvVisibleDays.has(d);
+        return `<button class="ltvDayChip${on?' on':''}" onclick="toggleLtvDay('${d}')">${d}</button>`;
+      }).join('');
+}
+
+function renderLtvPerfDayDropdown(){
+  const sel = g('ltvPerfDay');
+  if(!sel) return;
+  const allDays = ltvFilters.range === 'extended' ? LTV_DAYS_EXT : LTV_DAYS_STD;
+  // If the previously selected day isn't available anymore, fall back to D7.
+  if(!allDays.includes(ltvPerfDay)) ltvPerfDay = allDays.includes('D7') ? 'D7' : allDays[0];
+  sel.innerHTML = allDays.map(d => `<option value="${d}"${d===ltvPerfDay?' selected':''}>${d.replace('D','Day ')}</option>`).join('');
+  // Keep period dropdown in sync with state
+  const per = g('ltvPerfPeriod');
+  if(per) per.value = ltvPerfPeriod;
 }
 
 function resetLtvFilters(){
@@ -2809,6 +2891,9 @@ function getLtvFiltered(){
 
 function renderLtv(){
   if(!_ltvLoaded){ return; } // not opened yet
+  // Sync chip + dropdown UIs with current state regardless of data presence
+  renderLtvDayChips();
+  renderLtvPerfDayDropdown();
   const rows = getLtvFiltered();
   if(!rows.length){
     g('ltvKpis').innerHTML = '<div class="ltvEmpty" style="grid-column:1/-1">No LTV rows match the current filters.</div>';
@@ -2816,10 +2901,12 @@ function renderLtv(){
     g('ltvLeadTable').innerHTML = '';
     g('ltvShowAllBtn').style.display = 'none';
     if(charts.ltvCurve){ charts.ltvCurve.destroy(); charts.ltvCurve = null; }
+    if(charts.ltvPerf){  charts.ltvPerf.destroy();  charts.ltvPerf  = null; }
     return;
   }
   renderLtvKpis(rows);
   renderLtvCurve(rows);
+  renderLtvPerformance();
   renderLtvHeatmap(rows);
   renderLtvLeaderboard(rows);
 }
@@ -2867,7 +2954,11 @@ function kpiTile(cls, label, val, sub){
 }
 
 function renderLtvCurve(rows){
-  const days = ltvFilters.range === 'extended' ? LTV_DAYS_EXT : LTV_DAYS_STD;
+  const allDays = ltvFilters.range === 'extended' ? LTV_DAYS_EXT : LTV_DAYS_STD;
+  // Only include days the user has toggled ON via the chip row.
+  // Falls back to all days if the visible-set is somehow empty.
+  let days = allDays.filter(d => ltvVisibleDays.has(d));
+  if(!days.length) days = allDays;
   const dayNum = d => parseInt(d.replace('D',''), 10);
   const labels = days.map(d => d.replace('D','Day '));
   // Plot all 3 LTV types side-by-side regardless of selected type filter, so
@@ -2925,11 +3016,131 @@ function renderLtvCurve(rows){
   });
 }
 
+/* ── Performance Trends ──
+   X-axis: install date (or week / month bucket)
+   Y-axis: avg LTV at the selected cohort day (D7, D14, D30, ...)
+   3 lines: Ad / IAP / Total — selected type drawn bold + filled */
+function renderLtvPerformance(){
+  // Pull current selections from the controls
+  const dayEl = g('ltvPerfDay'), perEl = g('ltvPerfPeriod');
+  if(dayEl && dayEl.value) ltvPerfDay = dayEl.value;
+  if(perEl && perEl.value) ltvPerfPeriod = perEl.value;
+
+  // Match heatmap/leaderboard scoping: respect game/plat/country/date,
+  // but plot all 3 LTV types for comparison (ignore type filter here).
+  const allFiltered = (ltvData||[]).filter(r=>{
+    if(ltvFilters.game    && r.game    !== ltvFilters.game)    return false;
+    if(ltvFilters.plat    && r.plat    !== ltvFilters.plat)    return false;
+    if(ltvFilters.country && r.country !== ltvFilters.country) return false;
+    if(ltvFilters.from && r.installDate && r.installDate < ltvFilters.from) return false;
+    if(ltvFilters.to   && r.installDate && r.installDate > ltvFilters.to)   return false;
+    return true;
+  });
+
+  // Bucket key per period
+  const bucketOf = dateStr => {
+    if(!dateStr) return '';
+    if(ltvPerfPeriod === 'monthly') return dateStr.slice(0,7); // YYYY-MM
+    if(ltvPerfPeriod === 'weekly'){
+      // ISO-week-ish — just snap to Monday so labels stay readable
+      const d = new Date(dateStr + 'T00:00:00');
+      if(isNaN(d)) return dateStr;
+      const dow = d.getDay() || 7;        // Sun=0 → 7
+      d.setDate(d.getDate() - (dow-1));
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    return dateStr;
+  };
+
+  // Aggregate by (type, bucket) → cohort-size weighted avg of selected day
+  const agg = {};   // agg[type][bucket] = {num, den}
+  ['Total LTV','Ad LTV','IAP LTV'].forEach(t => agg[t] = {});
+  allFiltered.forEach(r => {
+    if(!agg[r.type]) return;
+    const v = r.days?.[ltvPerfDay];
+    if(v == null || isNaN(v)) return;
+    const w = r.cohortSize || 1;
+    const k = bucketOf(r.installDate);
+    if(!k) return;
+    if(!agg[r.type][k]) agg[r.type][k] = { num:0, den:0 };
+    agg[r.type][k].num += v * w;
+    agg[r.type][k].den += w;
+  });
+
+  // Union of all buckets across types, sorted ascending
+  const buckets = [...new Set(
+    Object.values(agg).flatMap(o => Object.keys(o))
+  )].sort();
+
+  if(!buckets.length){
+    if(charts.ltvPerf){ charts.ltvPerf.destroy(); charts.ltvPerf = null; }
+    return;
+  }
+
+  const valueFor = (type, b) => {
+    const c = agg[type][b];
+    return c && c.den > 0 ? +(c.num / c.den).toFixed(4) : null;
+  };
+
+  const fmtBucketLbl = b => {
+    if(ltvPerfPeriod === 'monthly'){
+      const [yr, mo] = b.split('-');
+      return MONTHS[(+mo)-1] + " '" + yr.slice(2);
+    }
+    // daily / weekly → "16 Mar"
+    return fmtLbl(b);
+  };
+
+  const dataset = (label, color, type) => ({
+    label, data: buckets.map(b => valueFor(type, b)),
+    borderColor: color,
+    backgroundColor: color.replace(')', ',.10)').replace('rgb','rgba'),
+    borderWidth: type === ltvFilters.type ? 2.6 : 1.4,
+    pointRadius: type === ltvFilters.type ? 3 : 1.5,
+    pointHoverRadius: 5,
+    tension: .35,
+    fill: type === ltvFilters.type,
+    spanGaps: true
+  });
+
+  if(charts.ltvPerf) charts.ltvPerf.destroy();
+  charts.ltvPerf = new Chart(g('ltvPerfChart').getContext('2d'), {
+    type:'line',
+    data:{
+      labels: buckets.map(fmtBucketLbl),
+      datasets:[
+        dataset('Total LTV', 'rgb(0,229,195)', 'Total LTV'),
+        dataset('Ad LTV',    'rgb(255,184,0)', 'Ad LTV'),
+        dataset('IAP LTV',   'rgb(77,159,255)','IAP LTV')
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ labels:{ color:tc(), font:{family:'Poppins',size:11}, boxWidth:11, padding:14 } },
+        tooltip:{
+          mode:'index', intersect:false,
+          callbacks:{
+            title: items => `${ltvPerfDay} · ${items[0].label}`,
+            label: ctx  => ctx.parsed.y == null ? ` ${ctx.dataset.label}: —` : ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(4)}`
+          }
+        }
+      },
+      scales:{
+        x:{ ticks:{color:tc(), font:{size:10,family:'Poppins'}, maxRotation:45, autoSkip:true, maxTicksLimit:14}, grid:{color:gc()} },
+        y:{ ticks:{color:tc(), font:{family:'DM Mono',size:10}, callback:v=>'$'+v.toFixed(2)}, grid:{color:gc()}, beginAtZero:true }
+      }
+    }
+  });
+}
+
 function renderLtvHeatmap(rows){
   const days = ltvFilters.range === 'extended' ? LTV_DAYS_EXT : LTV_DAYS_STD;
   // Aggregate per (installDate × app × country) — same row = one cohort entity
-  // Sort by installDate desc so latest cohorts are at top
-  const sorted = rows.slice().sort((a,b) => (b.installDate||'').localeCompare(a.installDate||''));
+  // Sort by installDate ascending → oldest cohorts at top, latest at bottom
+  // (matches normal time-series reading order)
+  const sorted = rows.slice().sort((a,b) => (a.installDate||'').localeCompare(b.installDate||''));
 
   // Normalize each column independently so colors compare within a day.
   const colMax = {};
